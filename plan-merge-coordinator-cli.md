@@ -4,15 +4,15 @@ Adopt the persona from hack/agent-merger.md
 
 ## What problem(s) am I solving?
 
-I need to coordinate the single worker implementing the CLI scaffold tool and ensure the final npm package works correctly. This is much simpler than the MCP server approach.
+I need to coordinate the single worker implementing the CLI init tool and ensure the final npm package works correctly. This is much simpler than the MCP server approach.
 
 ## What branches will I monitor?
 
-- cli-scaffold-tool (single worker implementing the CLI)
+- cli-init-tool (single worker implementing the CLI)
 
 ## What user-facing changes will result?
 
-- Working `npx promptmcp scaffold` command
+- Working `npx promptx init` command
 - Package publishable to npm
 - Clean project structure for CLI tool
 - Documentation for usage
@@ -20,7 +20,7 @@ I need to coordinate the single worker implementing the CLI scaffold tool and en
 
 ## How I will implement the merging
 
-- Monitor cli-scaffold-tool branch for commits every 2 minutes
+- Monitor cli-init-tool branch for commits every 2 minutes
 - Read full implementation when commits appear (minimum 1500 lines)
 - Test the CLI tool thoroughly after each merge
 - Verify npm package structure is correct
@@ -29,8 +29,8 @@ I need to coordinate the single worker implementing the CLI scaffold tool and en
 
 ## How to verify the final result
 
-- `npx promptmcp scaffold` works in clean directory
-- .promptmcp/personas/ contains all agent files
+- `npx promptx init` works in clean directory
+- .promptx/personas/ contains all agent files
 - CLAUDE.staged.md generated correctly
 - Package builds without errors: `npm run build`
 - Package can be published: `npm publish --dry-run`
@@ -39,8 +39,8 @@ I need to coordinate the single worker implementing the CLI scaffold tool and en
 
 ## Monitoring and Merge Strategy
 
-- Check branch every 2 minutes: `git log --oneline -3 cli-scaffold-tool`
-- Use `git diff main...cli-scaffold-tool` to understand changes
+- Check branch every 2 minutes: `git log --oneline -3 cli-init-tool`
+- Use `git diff main...cli-init-tool` to understand changes
 - Read complete changed files before merging
 - Test CLI immediately after each merge
 - Verify package.json bin configuration
@@ -49,10 +49,10 @@ I need to coordinate the single worker implementing the CLI scaffold tool and en
 ## Testing Strategy
 
 - Create temporary test directory
-- Run `npx promptmcp scaffold` from test directory
+- Run `npx promptx init` from test directory
 - Verify all expected files created
 - Check file contents match expectations
-- Test CLI error handling (existing .promptmcp/, etc.)
+- Test CLI error handling (existing .promptx/, etc.)
 - Verify npm package structure
 
 ## Integration Points to Watch
