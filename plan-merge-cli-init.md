@@ -16,11 +16,10 @@ You are the merge coordinator for the CLI init tool project. Your job is to moni
 
 ### Development Branch (cli-init-dev)
 Watch for commits that implement:
-- package.json with proper bin configuration
-- src/cli.ts main entry point
-- src/init.ts initialization logic
-- TypeScript configuration
-- Basic project structure
+- src/init.ts initialization logic (NEW FILE)
+- src/cli.ts extensions for init command (MODIFIES EXISTING)
+- Any additional dependencies in package.json (EXTENDS EXISTING)
+- **CRITICAL**: Should NOT recreate package.json/tsconfig.json - only extend
 
 ### Testing Branch (cli-init-test)
 Watch for commits that implement:

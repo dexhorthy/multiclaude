@@ -38,9 +38,9 @@ fi
 WINDOW_NAME="$1"
 
 # Configuration
-REPO_NAME="agentcontrolplane"
+REPO_NAME="${PROMPTX_REPO_NAME:-$(basename $(pwd))}"
 WORKTREES_BASE="$HOME/.humanlayer/worktrees"
-TMUX_SESSION="acp-agents"
+TMUX_SESSION="${PROMPTX_TMUX_SESSION:-${REPO_NAME}-promptx}"
 
 # Determine branch name from window name
 BRANCH_NAME="${WINDOW_NAME}"

@@ -35,9 +35,9 @@ BRANCH_NAME="$1"
 PLAN_FILE="$2"
 
 # Configuration
-REPO_NAME="agentcontrolplane"
+REPO_NAME="${PROMPTX_REPO_NAME:-$(basename $(pwd))}"
 WORKTREES_BASE="$HOME/.humanlayer/worktrees"
-TMUX_SESSION="acp-agents"
+TMUX_SESSION="${PROMPTX_TMUX_SESSION:-${REPO_NAME}-promptx}"
 
 # Function to create worktree
 create_worktree() {
@@ -67,8 +67,7 @@ create_worktree() {
     # Copy plan file
     cp "$PLAN_FILE" "$worktree_dir/"
     
-    # Run make setup to create isolated cluster
-    log "Setting up isolated cluster in worktree..."
+    log "Running make setup"
     cd "$worktree_dir"
     if ! make setup; then
         error "Setup failed. Cleaning up worktree..."
@@ -79,14 +78,7 @@ create_worktree() {
     fi
     cd - > /dev/null
     
-    # Create prompt.md file based on plan type
-    if [[ "$PLAN_FILE" == "hack/agent-integration-tester.md" ]]; then
-        # Copy the integration tester persona directly as the prompt
-        cp hack/agent-integration-tester.md "$worktree_dir/prompt.md"
-    else
-        # Copy the plan file as the prompt for regular agents
-        cp "$PLAN_FILE" "$worktree_dir/prompt.md"
-    fi
+    cp "$PLAN_FILE" "$worktree_dir/prompt.md"
     
     log "Worktree created: $worktree_dir"
 }

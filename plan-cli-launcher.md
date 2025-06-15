@@ -17,9 +17,11 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 
 ## How I will implement it
 
-- Extend existing CLI with `launch` and `cleanup` subcommands in src/cli.ts
-- Create src/launcher.ts for launch logic (replaces launch_coding_workers.sh functionality)
-- Create src/cleanup.ts for cleanup logic (replaces cleanup_coding_workers.sh functionality)
+- **IMPORTANT**: Extend existing CLI framework from scaffold - DO NOT recreate package.json/tsconfig.json
+- Add `launch` and `cleanup` subcommands to existing src/cli.ts from scaffold
+- Create src/launcher.ts for launch logic (replaces launch_coding_workers.sh functionality) - **NEW FILE**
+- Create src/cleanup.ts for cleanup logic (replaces cleanup_coding_workers.sh functionality) - **NEW FILE**
+- Create src/config.ts for configuration management - **NEW FILE**
 - Use Node.js child_process.spawn() for git, tmux, make commands
 - Support environment variable configuration with sensible defaults
 - Add .promptx/config.json schema for project-specific overrides
@@ -58,8 +60,8 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 
 ### Environment Variables
 - PROMPTX_WORKTREE_DIR: Base directory for worktrees (default: ~/.humanlayer/worktrees)
-- PROMPTX_TMUX_SESSION: Tmux session name (default: acp-agents)  
-- PROMPTX_REPO_NAME: Repository name prefix (default: agentcontrolplane)
+- PROMPTX_TMUX_SESSION: Tmux session name (default: agentcontrolplane-promptx)  
+- PROMPTX_REPO_NAME: Repository name prefix (default: $(basename $(pwd)))
 - PROMPTX_CONFIG: Path to config file (default: .promptx/config.json)
 
 ### Configuration File (.promptx/config.json)
@@ -74,12 +76,13 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 
 ## Files to Create/Modify
 
-- src/cli.ts (add launch/cleanup subcommands)
-- src/launcher.ts (launch command implementation)
-- src/cleanup.ts (cleanup command implementation)  
-- src/config.ts (configuration management)
-- src/types.ts (TypeScript interfaces)
-- package.json (update dependencies if needed)
+- src/cli.ts (extend to add launch/cleanup subcommands) - **MODIFY EXISTING**
+- src/launcher.ts (launch command implementation) - **NEW FILE**
+- src/cleanup.ts (cleanup command implementation) - **NEW FILE**
+- src/config.ts (configuration management) - **NEW FILE**
+- src/types.ts (extend with launcher interfaces) - **MODIFY EXISTING**
+- package.json (add any launcher-specific dependencies) - **EXTEND EXISTING**
+- **DO NOT**: Recreate foundation files from scaffold agent
 
 ## Technical Notes
 

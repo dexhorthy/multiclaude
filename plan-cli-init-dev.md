@@ -11,13 +11,15 @@ Need to create a simple npm CLI package that initializes agent personas into pro
 - `npx promptx init` command that creates .promptx/ folder
 - Copies all hack/ persona files into .promptx/personas/
 - Creates CLAUDE.staged.md with proper agent selection instructions
+- Creates/updates Makefile with required `setup` and `teardown` targets for launch compatibility
 - User-friendly CLI with clear instructions for merging CLAUDE.staged.md into CLAUDE.md
 - Clean npm package that works with npx without installation
 
 ## How I will implement it
 
-- Create package.json with proper bin entry for CLI command
-- Implement src/cli.ts as main entry point for init command
+- **IMPORTANT**: Only extend existing package.json/tsconfig.json from scaffold agent - DO NOT recreate
+- Implement src/init.ts as initialization logic module
+- Add init command to existing src/cli.ts framework from scaffold
 - Copy all hack/agent-*.md files to .promptx/personas/
 - Generate CLAUDE.staged.md template with persona selection
 - Add clear instructions for merging staged file into CLAUDE.md
@@ -43,12 +45,11 @@ Need to create a simple npm CLI package that initializes agent personas into pro
 
 ## Files to Create/Modify
 
-- package.json (with bin entry pointing to cli)
-- src/cli.ts (main CLI entry point)
-- src/init.ts (initialization logic)
-- tsconfig.json
-- .gitignore
-- README.md (basic usage instructions)
+- src/init.ts (initialization logic) - **NEW FILE**
+- src/cli.ts (extend to add init command) - **MODIFY EXISTING**
+- package.json (add any init-specific dependencies) - **EXTEND EXISTING** 
+- README.md (add init command documentation) - **EXTEND EXISTING**
+- **DO NOT**: Create new package.json, tsconfig.json, or .gitignore - use scaffold foundation
 
 ## Technical Notes
 
@@ -75,4 +76,5 @@ Must include:
 2. Create .promptx/personas/ directory
 3. Copy all hack/agent-*.md files to personas/
 4. Generate CLAUDE.staged.md in project root
-5. Show success message with next steps
+5. Create/update Makefile with `setup` and `teardown` targets if missing
+6. Show success message with next steps including Makefile requirements

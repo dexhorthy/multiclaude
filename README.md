@@ -91,6 +91,8 @@ cd your-project
 npx promptx init
 ```
 
+**Note**: The init command will create/update your Makefile with required `setup` and `teardown` targets if they don't exist. These are needed for the `npx promptx launch` command to work properly.
+
 
 ## Example Usage
 
