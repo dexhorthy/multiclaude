@@ -1,13 +1,13 @@
 # CLI Init Tool Test Suite
 
-Comprehensive testing for the `npx promptx init` command and package distribution functionality.
+Comprehensive testing for the `npx multiclaude init` command and package distribution functionality.
 
 ## Test Coverage
 
 ### ✅ Test Categories Implemented
 
 1. **Basic Functionality Tests** (`init.test.ts`)
-   - Creates `.promptx/` directory structure
+   - Creates `.multiclaude/` directory structure
    - Copies all 5 persona files correctly
    - Generates `CLAUDE.staged.md` with proper content
    - Creates `Makefile` with setup/teardown targets
@@ -15,7 +15,7 @@ Comprehensive testing for the `npx promptx init` command and package distributio
 
 2. **Edge Case Tests** (`edge-cases.test.ts`)
    - Directory permission errors
-   - Existing `.promptx/` directories
+   - Existing `.multiclaude/` directories
    - Special characters in paths
    - File system edge cases
    - Platform-specific behaviors

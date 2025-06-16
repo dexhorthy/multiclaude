@@ -269,7 +269,7 @@ export class Launcher {
       console.log(`  tmux select-window -t ${sessionName}:${info.tmuxWindow}`);
       console.log();
       console.log('To clean up later:');
-      console.log(`  npx promptx cleanup ${branchName}`);
+      console.log(`  npx multiclaude cleanup ${branchName}`);
     } catch (error) {
       this.error(`Launch failed: ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);

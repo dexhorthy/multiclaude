@@ -127,9 +127,9 @@ Watch for commits that implement:
 ## Success Criteria
 
 ### Fully Integrated Package
-- `npx promptx init` works correctly
-- `npx promptx launch` works correctly
-- `npx promptx cleanup` works correctly
+- `npx multiclaude init` works correctly
+- `npx multiclaude launch` works correctly
+- `npx multiclaude cleanup` works correctly
 - All tests pass
 - Package can be published to npm
 - Documentation is complete and accurate
@@ -157,8 +157,8 @@ git diff main..cli-launcher
 # Test integration after merge
 npm run build
 npm test
-npm link  # Update global npx promptx to latest build
-npx promptx init --help
+npm link  # Update global npx multiclaude to latest build
+npx multiclaude init --help
 ```
 
 ## Emergency Procedures

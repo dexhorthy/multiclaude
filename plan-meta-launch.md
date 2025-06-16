@@ -19,7 +19,7 @@ Based on the project's current state (empty repo with no Node.js structure), age
 - Basic CLI entry point exists
 
 ```bash
-npx promptx launch project-scaffold plan-project-scaffold.md
+npx multiclaude launch project-scaffold plan-project-scaffold.md
 ```
 
 **WAIT FOR COMPLETION** - Monitor commits every 5 minutes. Do not proceed until:
@@ -36,13 +36,13 @@ Once project scaffold is complete and merged to this branch, launch these agents
 **Branch**: `cli-init-dev`
 **Plan**: `plan-cli-init-dev.md`
 **Dependencies**: Project scaffold complete
-**Focus**: Implement `npx promptx init` command
+**Focus**: Implement `npx multiclaude init` command
 
 ### 2B. CLI Launcher Development  
 **Branch**: `cli-launcher`
 **Plan**: `plan-cli-launcher.md`
 **Dependencies**: Project scaffold complete
-**Focus**: Implement `npx promptx launch/cleanup` commands
+**Focus**: Implement `npx multiclaude launch/cleanup` commands
 
 ### 2C. Merge Coordinator
 **Branch**: `merge-cli-init`
@@ -52,9 +52,9 @@ Once project scaffold is complete and merged to this branch, launch these agents
 
 ```bash
 # Launch all three in parallel after Phase 1 complete
-npx promptx launch cli-init-dev plan-cli-init-dev.md
-npx promptx launch cli-launcher plan-cli-launcher.md  
-npx promptx launch merge-cli-init plan-merge-cli-init.md
+npx multiclaude launch cli-init-dev plan-cli-init-dev.md
+npx multiclaude launch cli-launcher plan-cli-launcher.md  
+npx multiclaude launch merge-cli-init plan-merge-cli-init.md
 ```
 
 ## Phase 3: Testing & Integration (After Phase 2 features working)
@@ -67,7 +67,7 @@ npx promptx launch merge-cli-init plan-merge-cli-init.md
 
 ```bash
 # Launch once core features are working
-npx promptx launch cli-init-test plan-cli-init-test.md
+npx multiclaude launch cli-init-test plan-cli-init-test.md
 ```
 
 ## Why This Sequence?
@@ -101,9 +101,9 @@ Once foundation exists:
 - [ ] Committed and merged to this branch
 
 ### Phase 2 Success Criteria  
-- [ ] `npx promptx init` command working
-- [ ] `npx promptx launch` command working
-- [ ] `npx promptx cleanup` command working
+- [ ] `npx multiclaude init` command working
+- [ ] `npx multiclaude launch` command working
+- [ ] `npx multiclaude cleanup` command working
 - [ ] All features integrated without conflicts
 - [ ] Build system works for all features
 
@@ -180,15 +180,15 @@ git log --oneline -3 cli-init-test
 
 ```bash
 # Phase 1: Foundation (wait for completion)
-npx promptx launch project-scaffold plan-project-scaffold.md
+npx multiclaude launch project-scaffold plan-project-scaffold.md
 
 # Monitor until complete, then Phase 2: Parallel (after Phase 1 done)
-npx promptx launch cli-init-dev plan-cli-init-dev.md
-npx promptx launch cli-launcher plan-cli-launcher.md
-npx promptx launch merge-cli-init plan-merge-cli-init.md
+npx multiclaude launch cli-init-dev plan-cli-init-dev.md
+npx multiclaude launch cli-launcher plan-cli-launcher.md
+npx multiclaude launch merge-cli-init plan-merge-cli-init.md
 
 # Phase 3: Testing (after core features working)
-npx promptx launch cli-init-test plan-cli-init-test.md
+npx multiclaude launch cli-init-test plan-cli-init-test.md
 ```
 
 ## Success Metrics

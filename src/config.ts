@@ -4,7 +4,7 @@ import * as path from 'node:path';
 import type { LauncherConfig } from './types.js';
 
 export function loadConfig(): LauncherConfig {
-  const repoName = process.env.PROMPTX_REPO_NAME || path.basename(process.cwd());
+  const repoName = process.env.MULTICLAUDE_REPO_NAME || path.basename(process.cwd());
   
   const defaultConfig: LauncherConfig = {
     worktreeDir: path.join(os.homedir(), '.humanlayer', 'worktrees'),
@@ -15,14 +15,14 @@ export function loadConfig(): LauncherConfig {
 
   // Override with environment variables
   const config: LauncherConfig = {
-    worktreeDir: process.env.PROMPTX_WORKTREE_DIR || defaultConfig.worktreeDir,
-    tmuxSession: process.env.PROMPTX_TMUX_SESSION || defaultConfig.tmuxSession,
+    worktreeDir: process.env.MULTICLAUDE_WORKTREE_DIR || defaultConfig.worktreeDir,
+    tmuxSession: process.env.MULTICLAUDE_TMUX_SESSION || defaultConfig.tmuxSession,
     repoName: repoName,
     defaultBranch: defaultConfig.defaultBranch,
   };
 
   // Override with config file if it exists
-  const configPath = process.env.PROMPTX_CONFIG || '.promptx/config.json';
+  const configPath = process.env.MULTICLAUDE_CONFIG || '.multiclaude/config.json';
 
   if (fs.existsSync(configPath)) {
     try {

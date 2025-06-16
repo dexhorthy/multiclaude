@@ -4,14 +4,14 @@ Adopt the persona from hack/agent-developer.md
 
 ## What problem(s) am I solving?
 
-Need to replace the shell script-based agent launching system with npm CLI commands that provide better configuration flexibility and can be used from any project directory. Users should be able to run `npx promptx launch BRANCH PLAN-FILE.md` and `npx promptx cleanup BRANCH` instead of the hack/ shell scripts.
+Need to replace the shell script-based agent launching system with npm CLI commands that provide better configuration flexibility and can be used from any project directory. Users should be able to run `npx multiclaude launch BRANCH PLAN-FILE.md` and `npx multiclaude cleanup BRANCH` instead of the hack/ shell scripts.
 
 ## What user-facing changes will I ship?
 
-- `npx promptx launch <branch> <plan-file>` command that replaces the shell script launching system
-- `npx promptx cleanup <branch>` command that replaces the shell script cleanup system  
-- Environment variable support: PROMPTX_WORKTREE_DIR, PROMPTX_TMUX_SESSION, PROMPTX_REPO_NAME
-- Configuration file support (.promptx/config.json) for project-specific settings
+- `npx multiclaude launch <branch> <plan-file>` command that replaces the shell script launching system
+- `npx multiclaude cleanup <branch>` command that replaces the shell script cleanup system  
+- Environment variable support: MULTICLAUDE_WORKTREE_DIR, MULTICLAUDE_TMUX_SESSION, MULTICLAUDE_REPO_NAME
+- Configuration file support (.multiclaude/config.json) for project-specific settings
 - Better error messages and validation than shell scripts
 - Cross-platform compatibility (works on macOS/Linux/Windows with WSL)
 
@@ -24,34 +24,34 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 - Create src/config.ts for configuration management - **NEW FILE**
 - Use Node.js child_process.spawn() for git, tmux, make commands
 - Support environment variable configuration with sensible defaults
-- Add .promptx/config.json schema for project-specific overrides
+- Add .multiclaude/config.json schema for project-specific overrides
 - Maintain exact same tmux/worktree behavior as existing shell scripts
 
 ## How to verify it
 
-- Test `npx promptx launch test-branch plan-test.md` creates worktree and tmux session
-- Test `npx promptx cleanup test-branch` removes worktree and tmux window
-- Verify PROMPTX_WORKTREE_DIR override works (default: ~/.humanlayer/worktrees)
-- Verify PROMPTX_TMUX_SESSION override works (default: acp-agents)
-- Test config file overrides work (.promptx/config.json)
+- Test `npx multiclaude launch test-branch plan-test.md` creates worktree and tmux session
+- Test `npx multiclaude cleanup test-branch` removes worktree and tmux window
+- Verify MULTICLAUDE_WORKTREE_DIR override works (default: ~/.humanlayer/worktrees)
+- Verify MULTICLAUDE_TMUX_SESSION override works (default: acp-agents)
+- Test config file overrides work (.multiclaude/config.json)
 - Verify exact same tmux window numbering behavior as shell scripts
 - Test error handling for missing files, failed commands
 - Test that launched agents commit every 5-10 minutes as expected
 
 ## Key Requirements
 
-### Launch Command (`npx promptx launch <branch> <plan-file>`)
+### Launch Command (`npx multiclaude launch <branch> <plan-file>`)
 - Must exactly match existing shell script launching behavior
-- Create git worktree in PROMPTX_WORKTREE_DIR (default: ~/.humanlayer/worktrees)
+- Create git worktree in MULTICLAUDE_WORKTREE_DIR (default: ~/.humanlayer/worktrees)
 - Copy .claude/ directory and plan file to worktree
 - Run `make setup` in worktree to create isolated cluster
 - Create prompt.md file (copy plan directly or use integration-tester logic)
-- Add tmux window to PROMPTX_TMUX_SESSION (default: acp-agents) 
+- Add tmux window to MULTICLAUDE_TMUX_SESSION (default: acp-agents) 
 - Set KUBECONFIG for isolated cluster
 - Launch claude with prompt.md and enable auto-accept mode (Shift+Tab)
 - Use 1-based window indexing for tmux (windows start at 1, not 0)
 
-### Cleanup Command (`npx promptx cleanup <branch>`)
+### Cleanup Command (`npx multiclaude cleanup <branch>`)
 - Remove git worktree for specified branch
 - Kill corresponding tmux window
 - Clean up any temporary files
@@ -59,12 +59,12 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 - Be idempotent (safe to run multiple times)
 
 ### Environment Variables
-- PROMPTX_WORKTREE_DIR: Base directory for worktrees (default: ~/.humanlayer/worktrees)
-- PROMPTX_TMUX_SESSION: Tmux session name (default: agentcontrolplane-promptx)  
-- PROMPTX_REPO_NAME: Repository name prefix (default: $(basename $(pwd)))
-- PROMPTX_CONFIG: Path to config file (default: .promptx/config.json)
+- MULTICLAUDE_WORKTREE_DIR: Base directory for worktrees (default: ~/.humanlayer/worktrees)
+- MULTICLAUDE_TMUX_SESSION: Tmux session name (default: agentcontrolplane-promptx)  
+- MULTICLAUDE_REPO_NAME: Repository name prefix (default: $(basename $(pwd)))
+- MULTICLAUDE_CONFIG: Path to config file (default: .multiclaude/config.json)
 
-### Configuration File (.promptx/config.json)
+### Configuration File (.multiclaude/config.json)
 ```json
 {
   "worktreeDir": "/custom/worktree/path",
@@ -128,7 +128,7 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 - Must maintain compatibility with hack/agent-*.md personas
 - Must work with existing Makefile targets
 - Should eventually replace the existing shell script system
-- Should integrate with `npx promptx init` for complete workflow
+- Should integrate with `npx multiclaude init` for complete workflow
 
 ## Performance Requirements
 

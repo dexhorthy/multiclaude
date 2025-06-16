@@ -12,7 +12,7 @@ I need to coordinate the single worker implementing the CLI init tool and ensure
 
 ## What user-facing changes will result?
 
-- Working `npx promptx init` command
+- Working `npx multiclaude init` command
 - Package publishable to npm
 - Clean project structure for CLI tool
 - Documentation for usage
@@ -29,8 +29,8 @@ I need to coordinate the single worker implementing the CLI init tool and ensure
 
 ## How to verify the final result
 
-- `npx promptx init` works in clean directory
-- .promptx/personas/ contains all agent files
+- `npx multiclaude init` works in clean directory
+- .multiclaude/personas/ contains all agent files
 - CLAUDE.staged.md generated correctly
 - Package builds without errors: `npm run build`
 - Package can be published: `npm publish --dry-run`
@@ -49,10 +49,10 @@ I need to coordinate the single worker implementing the CLI init tool and ensure
 ## Testing Strategy
 
 - Create temporary test directory
-- Run `npx promptx init` from test directory
+- Run `npx multiclaude init` from test directory
 - Verify all expected files created
 - Check file contents match expectations
-- Test CLI error handling (existing .promptx/, etc.)
+- Test CLI error handling (existing .multiclaude/, etc.)
 - Verify npm package structure
 
 ## Integration Points to Watch

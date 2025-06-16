@@ -1,10 +1,10 @@
 {
-  "name": "promptx",
-  "version": "0.1.0",
+  "name": "multiclaude",
+  "version": "0.2.0",
   "description": "AI-powered CLI tool for project scaffolding and development workflow automation",
   "main": "dist/index.mjs",
   "bin": {
-    "promptx": "./dist/cli.js"
+    "multiclaude": "./dist/cli.js"
   },
   "scripts": {
     "build": "tsup src/index.ts --format esm --target es2020 --clean && tsup src/cli.ts --format cjs --target es2020",

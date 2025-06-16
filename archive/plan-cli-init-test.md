@@ -4,7 +4,7 @@ Adopt the persona from hack/agent-developer.md
 
 ## What problem(s) am I solving?
 
-Need to thoroughly test the `npx promptx init` command and ensure it works correctly across different environments and edge cases. The testing agent will create comprehensive test scenarios and verify the CLI package works as expected.
+Need to thoroughly test the `npx multiclaude init` command and ensure it works correctly across different environments and edge cases. The testing agent will create comprehensive test scenarios and verify the CLI package works as expected.
 
 ## What user-facing changes will I ship?
 
@@ -36,13 +36,13 @@ Need to thoroughly test the `npx promptx init` command and ensure it works corre
 ### Test Categories
 
 1. **Basic Functionality Tests**
-   - `npx promptx init` creates .promptx/ directory
+   - `npx multiclaude init` creates .multiclaude/ directory
    - All persona files copied correctly
    - CLAUDE.staged.md generated with proper content
    - Success messages displayed appropriately
 
 2. **Edge Case Tests**
-   - Running init in directory that already has .promptx/
+   - Running init in directory that already has .multiclaude/
    - Running init without write permissions
    - Running init with partial existing files
    - Running init in git repo vs non-git directory
@@ -91,7 +91,7 @@ Need to thoroughly test the `npx promptx init` command and ensure it works corre
 - Verify each hack/agent-*.md file is copied correctly
 - Check file contents match exactly
 - Test with different persona file configurations
-- Validate .promptx/personas/ directory structure
+- Validate .multiclaude/personas/ directory structure
 
 ### CLAUDE.staged.md Testing
 - Verify template content is correct
@@ -102,14 +102,14 @@ Need to thoroughly test the `npx promptx init` command and ensure it works corre
 ## Test Scenarios
 
 ### Happy Path
-1. Fresh directory, run `npx promptx init`
+1. Fresh directory, run `npx multiclaude init`
 2. Verify all files created correctly
 3. Check success message and next steps
 4. Validate generated content
 
 ### Error Scenarios
 1. Directory without write permissions
-2. Existing .promptx/ directory
+2. Existing .multiclaude/ directory
 3. Missing source persona files
 4. Corrupted package installation
 

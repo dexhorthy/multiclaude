@@ -5,10 +5,10 @@
 The promptx CLI tool is fully functional with these commands:
 
 ### Core Commands
-- `npx promptx init` - Initialize agent personas and project structure
-- `npx promptx launch <branch> <plan-file>` - Launch coding agents with worktrees
-- `npx promptx cleanup <branch>` - Clean up agent worktrees and resources
-- `npx promptx version` - Show version information
+- `npx multiclaude init` - Initialize agent personas and project structure
+- `npx multiclaude launch <branch> <plan-file>` - Launch coding agents with worktrees
+- `npx multiclaude cleanup <branch>` - Clean up agent worktrees and resources
+- `npx multiclaude version` - Show version information
 
 ### Implementation Files
 - ✅ `src/cli.ts` - Main CLI command structure
@@ -47,19 +47,19 @@ npm run build
 npm link
 
 # Test commands
-npx promptx --help
-npx promptx init --help
-npx promptx launch --help
-npx promptx cleanup --help
+npx multiclaude --help
+npx multiclaude init --help
+npx multiclaude launch --help
+npx multiclaude cleanup --help
 
 # Initialize a project
-npx promptx init
+npx multiclaude init
 
 # Launch an agent
-npx promptx launch feature-branch plan-file.md
+npx multiclaude launch feature-branch plan-file.md
 
 # Clean up when done
-npx promptx cleanup feature-branch
+npx multiclaude cleanup feature-branch
 ```
 
 ## 📁 Remaining Plan Files

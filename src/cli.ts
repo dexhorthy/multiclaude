@@ -9,15 +9,15 @@ import type { InitOptions } from './types';
 const program = new Command();
 
 program
-  .name('promptx')
+  .name('multiclaude')
   .description('AI-powered CLI tool for project scaffolding and development workflow automation')
-  .version('0.1.0');
+  .version('0.2.0');
 
 program
   .command('init')
   .description('Initialize agent personas and project structure')
   .option('-v, --verbose', 'Verbose output')
-  .option('-o, --overwrite', 'Overwrite existing .promptx directory')
+  .option('-o, --overwrite', 'Overwrite existing .multiclaude directory')
   .action(async (options: InitOptions) => {
     await initProject(options);
   });
@@ -51,7 +51,7 @@ program
   .command('version')
   .description('Show version information')
   .action(() => {
-    console.log('promptx v0.1.0');
+    console.log('multiclaude v0.2.0');
   });
 
 program.parse();
