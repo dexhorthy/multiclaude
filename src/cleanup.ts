@@ -64,37 +64,51 @@ export class Cleanup {
     });
   }
 
+  private async findWindowInAllSessions(windowName: string): Promise<{session: string, window: string} | null> {
+    try {
+      // List all sessions
+      const sessionsResult = await this.runCommand('tmux', ['list-sessions', '-F', '#{session_name}']);
+      
+      if (sessionsResult.code !== 0) {
+        return null;
+      }
+      
+      const sessions = sessionsResult.stdout.trim().split('\n').filter(s => s.length > 0);
+      
+      for (const session of sessions) {
+        const windowsResult = await this.runCommand('tmux', [
+          'list-windows',
+          '-t',
+          session,
+          '-F',
+          '#{window_name}',
+        ]);
+        
+        if (windowsResult.code === 0 && windowsResult.stdout.includes(windowName)) {
+          return { session, window: windowName };
+        }
+      }
+      
+      return null;
+    } catch (error) {
+      return null;
+    }
+  }
+
   private async killTmuxWindow(windowName: string): Promise<void> {
     try {
-      const sessionExists = await this.runCommand('tmux', [
-        'has-session',
-        '-t',
-        this.config.tmuxSession,
-      ]);
-
-      if (sessionExists.code !== 0) {
-        this.info(`Tmux session not found: ${this.config.tmuxSession}`);
-        return;
-      }
-
-      // Check if window exists
-      const windowExists = await this.runCommand('tmux', [
-        'list-windows',
-        '-t',
-        this.config.tmuxSession,
-        '-F',
-        '#{window_name}',
-      ]);
-
-      if (windowExists.code === 0 && windowExists.stdout.includes(windowName)) {
-        this.log(`Killing tmux window: ${this.config.tmuxSession}:${windowName}`);
+      // Find the window in any session
+      const windowLocation = await this.findWindowInAllSessions(windowName);
+      
+      if (windowLocation) {
+        this.log(`Killing tmux window: ${windowLocation.session}:${windowLocation.window}`);
         await this.runCommand('tmux', [
           'kill-window',
           '-t',
-          `${this.config.tmuxSession}:${windowName}`,
+          `${windowLocation.session}:${windowLocation.window}`,
         ]);
       } else {
-        this.info(`Tmux window not found: ${this.config.tmuxSession}:${windowName}`);
+        this.info(`Tmux window not found: ${windowName}`);
       }
     } catch (error) {
       this.warn(

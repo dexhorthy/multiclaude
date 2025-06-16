@@ -17,13 +17,14 @@ program
   .command('init')
   .description('Initialize agent personas and project structure')
   .option('-v, --verbose', 'Verbose output')
+  .option('-o, --overwrite', 'Overwrite existing .promptx directory')
   .action(async (options: InitOptions) => {
     await initProject(options);
   });
 
 program
   .command('launch')
-  .description('Launch a coding agent with dedicated worktree and cluster')
+  .description('Launch a coding agent with dedicated worktree and environment')
   .argument('<branch>', 'Branch name for the agent')
   .argument('<plan-file>', 'Plan file for the agent to execute')
   .option('-v, --verbose', 'Verbose output')

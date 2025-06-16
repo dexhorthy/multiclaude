@@ -157,7 +157,8 @@ git diff main..cli-launcher
 # Test integration after merge
 npm run build
 npm test
-npm run cli -- init --help
+npm link  # Update global npx promptx to latest build
+npx promptx init --help
 ```
 
 ## Emergency Procedures

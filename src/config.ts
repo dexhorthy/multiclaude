@@ -4,10 +4,12 @@ import * as path from 'node:path';
 import type { LauncherConfig } from './types.js';
 
 export function loadConfig(): LauncherConfig {
+  const repoName = process.env.PROMPTX_REPO_NAME || path.basename(process.cwd());
+  
   const defaultConfig: LauncherConfig = {
     worktreeDir: path.join(os.homedir(), '.humanlayer', 'worktrees'),
-    tmuxSession: 'agentcontrolplane-promptx',
-    repoName: path.basename(process.cwd()),
+    tmuxSession: `${repoName}-agents`,
+    repoName: repoName,
     defaultBranch: 'main',
   };
 
@@ -15,7 +17,7 @@ export function loadConfig(): LauncherConfig {
   const config: LauncherConfig = {
     worktreeDir: process.env.PROMPTX_WORKTREE_DIR || defaultConfig.worktreeDir,
     tmuxSession: process.env.PROMPTX_TMUX_SESSION || defaultConfig.tmuxSession,
-    repoName: process.env.PROMPTX_REPO_NAME || defaultConfig.repoName,
+    repoName: repoName,
     defaultBranch: defaultConfig.defaultBranch,
   };
 

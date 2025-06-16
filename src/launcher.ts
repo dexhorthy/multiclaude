@@ -122,7 +122,7 @@ export class Launcher {
   }
 
   private async setupWorktree(info: WorktreeInfo): Promise<void> {
-    this.log('Setting up isolated cluster in worktree...');
+    this.log('Setting up project environment in worktree...');
 
     const result = await this.runCommand('make', ['setup'], { cwd: info.worktreeDir });
 
@@ -217,14 +217,8 @@ export class Launcher {
   private async launchClaude(info: WorktreeInfo): Promise<void> {
     const target = `${this.config.tmuxSession}:${info.tmuxWindow}`;
 
-    this.log('Setting KUBECONFIG for isolated cluster');
-    await this.runCommand('tmux', [
-      'send-keys',
-      '-t',
-      target,
-      `export KUBECONFIG="${path.join(info.worktreeDir, '.kube', 'config')}"`,
-      'C-m',
-    ]);
+    this.log('Setting up project environment');
+    // Environment setup can be customized via Makefile setup target
 
     this.log(`Starting Claude Code in worktree: ${info.worktreeDir}`);
     await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "$(cat prompt.md)"', 'C-m']);
@@ -242,6 +236,8 @@ export class Launcher {
   }
 
   async launch(branchName: string, planFile: string, options: LaunchOptions = {}): Promise<void> {
+    let sessionName = this.config.tmuxSession; // default fallback
+    
     try {
       this.log(`Starting worker: ${branchName} with plan: ${planFile}`);
 
@@ -256,21 +252,21 @@ export class Launcher {
       await this.createWorktree(info);
       await this.setupWorktree(info);
       this.createPromptFile(info);
-      await this.createTmuxWindow(info);
-      await this.launchClaude(info);
+      sessionName = await this.createTmuxWindow(info);
+      await this.launchClaude(info, sessionName);
 
       this.log('✅ Worker launched successfully!');
       console.log();
-      console.log(`Session: ${this.config.tmuxSession}`);
+      console.log(`Session: ${sessionName}`);
       console.log(`Branch: ${branchName}`);
       console.log(`Plan: ${planFile}`);
       console.log(`Worktree: ${info.worktreeDir}`);
       console.log();
       console.log('To attach to the session:');
-      console.log(`  tmux attach -t ${this.config.tmuxSession}`);
+      console.log(`  tmux attach -t ${sessionName}`);
       console.log();
       console.log('To switch to this window:');
-      console.log(`  tmux select-window -t ${this.config.tmuxSession}:${info.tmuxWindow}`);
+      console.log(`  tmux select-window -t ${sessionName}:${info.tmuxWindow}`);
       console.log();
       console.log('To clean up later:');
       console.log(`  npx promptx cleanup ${branchName}`);

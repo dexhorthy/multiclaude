@@ -146,8 +146,13 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
   try {
     // Check if .promptx already exists
     if (existsSync(promptxDir)) {
-      console.log(chalk.yellow('⚠️  .promptx directory already exists'));
-      console.log(chalk.blue('ℹ️  Continuing with existing directory...'));
+      if (!options.overwrite) {
+        console.log(chalk.red('❌ .promptx directory already exists'));
+        console.log(chalk.blue('ℹ️  Use --overwrite flag to overwrite existing directory'));
+        console.log(chalk.gray('   Example: npx promptx init --overwrite'));
+        process.exit(1);
+      }
+      console.log(chalk.yellow('⚠️  .promptx directory exists, overwriting...'));
     }
 
     // Create directories

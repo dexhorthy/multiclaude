@@ -1,5 +1,6 @@
 export interface InitOptions {
   verbose?: boolean;
+  overwrite?: boolean;
 }
 
 export interface LauncherConfig {

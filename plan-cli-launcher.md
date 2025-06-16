@@ -8,8 +8,8 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 
 ## What user-facing changes will I ship?
 
-- `npx promptx launch <branch> <plan-file>` command that replaces hack/launch_coding_workers.sh
-- `npx promptx cleanup <branch>` command that replaces hack/cleanup_coding_workers.sh  
+- `npx promptx launch <branch> <plan-file>` command that replaces the shell script launching system
+- `npx promptx cleanup <branch>` command that replaces the shell script cleanup system  
 - Environment variable support: PROMPTX_WORKTREE_DIR, PROMPTX_TMUX_SESSION, PROMPTX_REPO_NAME
 - Configuration file support (.promptx/config.json) for project-specific settings
 - Better error messages and validation than shell scripts
@@ -41,7 +41,7 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 ## Key Requirements
 
 ### Launch Command (`npx promptx launch <branch> <plan-file>`)
-- Must exactly match hack/launch_coding_workers.sh behavior
+- Must exactly match existing shell script launching behavior
 - Create git worktree in PROMPTX_WORKTREE_DIR (default: ~/.humanlayer/worktrees)
 - Copy .claude/ directory and plan file to worktree
 - Run `make setup` in worktree to create isolated cluster
@@ -127,7 +127,7 @@ Need to replace the shell script-based agent launching system with npm CLI comma
 - Must support existing plan file formats
 - Must maintain compatibility with hack/agent-*.md personas
 - Must work with existing Makefile targets
-- Should eventually replace hack/launch_coding_workers.sh
+- Should eventually replace the existing shell script system
 - Should integrate with `npx promptx init` for complete workflow
 
 ## Performance Requirements

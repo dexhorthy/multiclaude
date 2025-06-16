@@ -19,7 +19,7 @@ Based on the project's current state (empty repo with no Node.js structure), age
 - Basic CLI entry point exists
 
 ```bash
-./hack/launch_coding_workers.sh project-scaffold plan-project-scaffold.md
+npx promptx launch project-scaffold plan-project-scaffold.md
 ```
 
 **WAIT FOR COMPLETION** - Monitor commits every 5 minutes. Do not proceed until:
@@ -52,9 +52,9 @@ Once project scaffold is complete and merged to this branch, launch these agents
 
 ```bash
 # Launch all three in parallel after Phase 1 complete
-./hack/launch_coding_workers.sh cli-init-dev plan-cli-init-dev.md
-./hack/launch_coding_workers.sh cli-launcher plan-cli-launcher.md  
-./hack/launch_coding_workers.sh merge-cli-init plan-merge-cli-init.md
+npx promptx launch cli-init-dev plan-cli-init-dev.md
+npx promptx launch cli-launcher plan-cli-launcher.md  
+npx promptx launch merge-cli-init plan-merge-cli-init.md
 ```
 
 ## Phase 3: Testing & Integration (After Phase 2 features working)
@@ -67,7 +67,7 @@ Once project scaffold is complete and merged to this branch, launch these agents
 
 ```bash
 # Launch once core features are working
-./hack/launch_coding_workers.sh cli-init-test plan-cli-init-test.md
+npx promptx launch cli-init-test plan-cli-init-test.md
 ```
 
 ## Why This Sequence?
@@ -180,15 +180,15 @@ git log --oneline -3 cli-init-test
 
 ```bash
 # Phase 1: Foundation (wait for completion)
-./hack/launch_coding_workers.sh project-scaffold plan-project-scaffold.md
+npx promptx launch project-scaffold plan-project-scaffold.md
 
 # Monitor until complete, then Phase 2: Parallel (after Phase 1 done)
-./hack/launch_coding_workers.sh cli-init-dev plan-cli-init-dev.md
-./hack/launch_coding_workers.sh cli-launcher plan-cli-launcher.md
-./hack/launch_coding_workers.sh merge-cli-init plan-merge-cli-init.md
+npx promptx launch cli-init-dev plan-cli-init-dev.md
+npx promptx launch cli-launcher plan-cli-launcher.md
+npx promptx launch merge-cli-init plan-merge-cli-init.md
 
 # Phase 3: Testing (after core features working)
-./hack/launch_coding_workers.sh cli-init-test plan-cli-init-test.md
+npx promptx launch cli-init-test plan-cli-init-test.md
 ```
 
 ## Success Metrics
