@@ -19,9 +19,9 @@ because you miss a lot of delicate logic which then causes you to add more bad c
 ## Current TODO List (you MUST maintain 20+ items)
 1. [ ] Read Login.tsx FULLY (1500+ lines) - you'll understand the whole flow
 2. [ ] Remove at least 50% of redundant code - it's there, you'll see it
-3. [ ] Run bun build - this MUST pass before moving on
+3. [ ] Run npm run build - this MUST pass before moving on
 4. [ ] Check localhost:XXXX works - use the RIGHT port from package.json
-5. [ ] Run test.js if it exists - don't skip this
+5. [ ] Run npm test if it exists - don't skip this
 ... (keep going to 20+ or you'll lose context like lesser models do)
 ```
 

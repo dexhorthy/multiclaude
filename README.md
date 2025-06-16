@@ -10,18 +10,18 @@ promptx is a simple npm package that helps teams adopt specialized AI agent pers
 
 ```bash
 # Initialize agent personas into your project
-npx promptx init
+npx multiclaude init
 
 # Follow the instructions to merge CLAUDE.staged.md into CLAUDE.md
 ```
 
 ### 1. File Structure
 
-After running `npx promptx init`, you'll get:
+After running `npx multiclaude init`, you'll get:
 
 ```
 your-project/
-├── .promptx/
+├── .multiclaude/
 │   └── personas/
 │       ├── agent-developer.md           # For coding & implementation
 │       ├── agent-code-reviewer.md       # For code review & quality
@@ -88,15 +88,17 @@ When working with AI agents like claude code, instruct it to adopt the persona y
 ### 1. Initialize the personas
 ```bash
 cd your-project
-npx promptx init
+npx multiclaude init
 ```
+
+**Note**: The init command will create/update your Makefile with required `setup` and `teardown` targets if they don't exist. These are needed for the `npx multiclaude launch` command to work properly.
 
 
 ## Example Usage
 
 ```bash
 # Setting up a new project
-npx promptx init
+npx multiclaude init
 cat CLAUDE.staged.md >> CLAUDE.md  # or merge manually
 
 # Now your CLAUDE.md has persona selection
@@ -114,7 +116,7 @@ cat CLAUDE.staged.md >> CLAUDE.md  # or merge manually
 ## Development
 
 This project itself uses the agent personas! Check out:
-- `.promptx/personas/` - The agent persona definitions
+- `.multiclaude/personas/` - The agent persona definitions
 - `hack/` - Original persona files and development scripts
 - Worker plans for implementing features in parallel
 

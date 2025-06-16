@@ -1,0 +1,19 @@
+{
+  "name": "test-project",
+  "version": "1.0.0",
+  "description": "Sample project for testing promptx init",
+  "scripts": {
+    "build": "echo 'Building project...'",
+    "test": "echo 'Running tests...'",
+    "lint": "echo 'Linting code...'",
+    "dev": "echo 'Starting development server...'"
+  },
+  "dependencies": {
+    "react": "^18.0.0",
+    "typescript": "^5.0.0"
+  },
+  "devDependencies": {
+    "jest": "^29.0.0",
+    "eslint": "^8.0.0"
+  }
+}

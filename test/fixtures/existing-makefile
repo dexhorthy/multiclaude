@@ -1,0 +1,21 @@
+# Existing Makefile without setup/teardown targets
+.PHONY: all build clean test
+
+all: build
+
+build:
+	echo "Building the project"
+	npm run build
+
+clean:
+	rm -rf dist/
+	rm -rf node_modules/
+
+test:
+	npm test
+
+install:
+	npm install
+
+deploy:
+	echo "Deploying to production"
