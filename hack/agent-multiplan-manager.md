@@ -77,31 +77,6 @@ npx multiclaude cleanup integration-testing
 
 ## Handy Commands
 
-### Adding a New Agent to Existing Session
-When you need to add another agent to an already running session:
-
-```bash
-# 1. Create worktree manually
-./hack/create_worktree.sh newfeature
-
-# 2. Copy plan file to worktree
-cp plan-newfeature.md /Users/dex/.humanlayer/worktrees/agentcontrolplane_newfeature/
-
-# 3. Create prompt file
-cat > /Users/dex/.humanlayer/worktrees/agentcontrolplane_newfeature/prompt.md << 'EOF'
-Adopt the persona from hack/agent-developer.md
-Your task is to implement the features described in plan-newfeature.md
-[... standard prompt content ...]
-EOF
-
-# 4. Add new tmux window (increment window number)
-tmux new-window -t ${MULTICLAUDE_TMUX_SESSION}:9 -n "newfeature" -c "/Users/dex/.humanlayer/worktrees/agentcontrolplane_newfeature"
-
-# 5. Setup window
-tmux send-keys -t ${MULTICLAUDE_TMUX_SESSION}:9 'claude "$(cat prompt.md)"' C-m
-sleep 1
-tmux send-keys -t ${MULTICLAUDE_TMUX_SESSION}:9 C-m
-```
 
 ### Monitoring Agent Progress
 ```bash

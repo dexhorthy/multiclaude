@@ -150,12 +150,13 @@ export class Launcher {
     }
   }
 
-  private async getNextWindowNumber(): Promise<number> {
+  private async getNextWindowNumber(sessionName?: string): Promise<number> {
+    const session = sessionName || this.config.tmuxSession;
     try {
       const result = await this.runCommand('tmux', [
         'list-windows',
         '-t',
-        this.config.tmuxSession,
+        session,
         '-F',
         '#{window_index}',
       ]);
@@ -174,43 +175,71 @@ export class Launcher {
     return 1; // Start with window 1 (1-based indexing)
   }
 
+  private async getCurrentTmuxSession(): Promise<string | null> {
+    try {
+      const result = await this.runCommand('tmux', ['display-message', '-p', '#{session_name}']);
+      if (result.code === 0 && result.stdout.trim()) {
+        return result.stdout.trim();
+      }
+    } catch {
+      // Not in a tmux session or tmux not available
+    }
+    return null;
+  }
+
   private async createTmuxWindow(info: WorktreeInfo): Promise<void> {
+    // Try to use current tmux session first
+    const currentSession = await this.getCurrentTmuxSession();
+    const targetSession = currentSession || this.config.tmuxSession;
+
     const sessionExists = await this.runCommand('tmux', [
       'has-session',
       '-t',
-      this.config.tmuxSession,
+      targetSession,
     ]);
 
     if (sessionExists.code === 0) {
       // Session exists, add new window
-      const nextWindow = await this.getNextWindowNumber();
-      this.log(
-        `Adding new window to existing session: ${this.config.tmuxSession} (window ${nextWindow})`,
-      );
+      const nextWindow = await this.getNextWindowNumber(targetSession);
+      if (currentSession) {
+        this.log(
+          `Adding new window to current tmux session: ${targetSession} (window ${nextWindow})`,
+        );
+      } else {
+        this.log(
+          `Adding new window to existing session: ${targetSession} (window ${nextWindow})`,
+        );
+      }
 
       await this.runCommand('tmux', [
         'new-window',
         '-t',
-        `${this.config.tmuxSession}:${nextWindow}`,
+        `${targetSession}:${nextWindow}`,
         '-n',
         info.tmuxWindow,
         '-c',
         info.worktreeDir,
       ]);
+      
+      // Update the session name for subsequent operations
+      this.config.tmuxSession = targetSession;
     } else {
       // Create new session
-      this.log(`Creating new tmux session: ${this.config.tmuxSession}`);
+      this.log(`Creating new tmux session: ${targetSession}`);
 
       await this.runCommand('tmux', [
         'new-session',
         '-d',
         '-s',
-        this.config.tmuxSession,
+        targetSession,
         '-n',
         info.tmuxWindow,
         '-c',
         info.worktreeDir,
       ]);
+      
+      // Update the session name for subsequent operations  
+      this.config.tmuxSession = targetSession;
     }
   }
 
@@ -236,8 +265,6 @@ export class Launcher {
   }
 
   async launch(branchName: string, planFile: string, options: LaunchOptions = {}): Promise<void> {
-    let sessionName = this.config.tmuxSession; // default fallback
-    
     try {
       this.log(`Starting worker: ${branchName} with plan: ${planFile}`);
 
@@ -252,21 +279,21 @@ export class Launcher {
       await this.createWorktree(info);
       await this.setupWorktree(info);
       this.createPromptFile(info);
-      sessionName = await this.createTmuxWindow(info);
-      await this.launchClaude(info, sessionName);
+      await this.createTmuxWindow(info);
+      await this.launchClaude(info);
 
       this.log('✅ Worker launched successfully!');
       console.log();
-      console.log(`Session: ${sessionName}`);
+      console.log(`Session: ${this.config.tmuxSession}`);
       console.log(`Branch: ${branchName}`);
       console.log(`Plan: ${planFile}`);
       console.log(`Worktree: ${info.worktreeDir}`);
       console.log();
       console.log('To attach to the session:');
-      console.log(`  tmux attach -t ${sessionName}`);
+      console.log(`  tmux attach -t ${this.config.tmuxSession}`);
       console.log();
       console.log('To switch to this window:');
-      console.log(`  tmux select-window -t ${sessionName}:${info.tmuxWindow}`);
+      console.log(`  tmux select-window -t ${this.config.tmuxSession}:${info.tmuxWindow}`);
       console.log();
       console.log('To clean up later:');
       console.log(`  npx multiclaude cleanup ${branchName}`);
