@@ -11,7 +11,7 @@ const program = new Command();
 program
   .name('multiclaude')
   .description('AI-powered CLI tool for project scaffolding and development workflow automation')
-  .version('0.2.0');
+  .version('0.2.1');
 
 program
   .command('init')
@@ -51,7 +51,7 @@ program
   .command('version')
   .description('Show version information')
   .action(() => {
-    console.log('multiclaude v0.2.0');
+    console.log('multiclaude v0.2.1');
   });
 
 program.parse();
