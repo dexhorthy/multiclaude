@@ -127,12 +127,14 @@ const MAKEFILE_TEMPLATE = `# Makefile for launch compatibility
 
 setup:
 	@echo "Setting up project..."
-	@npm install || bun install || yarn install
+  # TODO: Add install command here
+	# @npm install || bun install || yarn install
 	@echo "Setup complete!"
 
 teardown:
 	@echo "Tearing down project..."
-	@rm -rf node_modules
+  # TODO: Add teardown command here
+	# @rm -rf node_modules
 	@echo "Teardown complete!"
 `;
 
