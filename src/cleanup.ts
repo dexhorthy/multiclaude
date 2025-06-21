@@ -64,17 +64,26 @@ export class Cleanup {
     });
   }
 
-  private async findWindowInAllSessions(windowName: string): Promise<{session: string, window: string} | null> {
+  private async findWindowInAllSessions(
+    windowName: string,
+  ): Promise<{ session: string; window: string } | null> {
     try {
       // List all sessions
-      const sessionsResult = await this.runCommand('tmux', ['list-sessions', '-F', '#{session_name}']);
-      
+      const sessionsResult = await this.runCommand('tmux', [
+        'list-sessions',
+        '-F',
+        '#{session_name}',
+      ]);
+
       if (sessionsResult.code !== 0) {
         return null;
       }
-      
-      const sessions = sessionsResult.stdout.trim().split('\n').filter(s => s.length > 0);
-      
+
+      const sessions = sessionsResult.stdout
+        .trim()
+        .split('\n')
+        .filter((s) => s.length > 0);
+
       for (const session of sessions) {
         const windowsResult = await this.runCommand('tmux', [
           'list-windows',
@@ -83,12 +92,12 @@ export class Cleanup {
           '-F',
           '#{window_name}',
         ]);
-        
+
         if (windowsResult.code === 0 && windowsResult.stdout.includes(windowName)) {
           return { session, window: windowName };
         }
       }
-      
+
       return null;
     } catch (error) {
       return null;
@@ -99,7 +108,7 @@ export class Cleanup {
     try {
       // Find the window in any session
       const windowLocation = await this.findWindowInAllSessions(windowName);
-      
+
       if (windowLocation) {
         this.log(`Killing tmux window: ${windowLocation.session}:${windowLocation.window}`);
         await this.runCommand('tmux', [

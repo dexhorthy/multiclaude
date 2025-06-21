@@ -192,11 +192,7 @@ export class Launcher {
     const currentSession = await this.getCurrentTmuxSession();
     const targetSession = currentSession || this.config.tmuxSession;
 
-    const sessionExists = await this.runCommand('tmux', [
-      'has-session',
-      '-t',
-      targetSession,
-    ]);
+    const sessionExists = await this.runCommand('tmux', ['has-session', '-t', targetSession]);
 
     if (sessionExists.code === 0) {
       // Session exists, add new window
@@ -206,9 +202,7 @@ export class Launcher {
           `Adding new window to current tmux session: ${targetSession} (window ${nextWindow})`,
         );
       } else {
-        this.log(
-          `Adding new window to existing session: ${targetSession} (window ${nextWindow})`,
-        );
+        this.log(`Adding new window to existing session: ${targetSession} (window ${nextWindow})`);
       }
 
       await this.runCommand('tmux', [
@@ -220,7 +214,7 @@ export class Launcher {
         '-c',
         info.worktreeDir,
       ]);
-      
+
       // Update the session name for subsequent operations
       this.config.tmuxSession = targetSession;
     } else {
@@ -237,8 +231,8 @@ export class Launcher {
         '-c',
         info.worktreeDir,
       ]);
-      
-      // Update the session name for subsequent operations  
+
+      // Update the session name for subsequent operations
       this.config.tmuxSession = targetSession;
     }
   }

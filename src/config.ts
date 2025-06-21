@@ -5,7 +5,7 @@ import type { LauncherConfig } from './types.js';
 
 export function loadConfig(): LauncherConfig {
   const repoName = process.env.MULTICLAUDE_REPO_NAME || path.basename(process.cwd());
-  
+
   const defaultConfig: LauncherConfig = {
     worktreeDir: path.join(os.homedir(), '.humanlayer', 'worktrees'),
     tmuxSession: `${repoName}-agents`,

@@ -27,14 +27,9 @@ because you miss a lot of delicate logic which then causes you to add more bad c
 
 ## Project Context
 
-Agent Control Plane is a Kubernetes operator for managing Large Language Model (LLM) workflows. The project provides:
+[CUSTOMIZE THIS SECTION FOR YOUR PROJECT]
 
-- Custom resources for LLM configurations and agent definitions
-- A controller-based architecture for managing resources
-- Integration with Model Control Protocol (MCP) servers using the `github.com/mark3labs/mcp-go` library
-- LLM client implementations using `github.com/tmc/langchaingo`
-
-Always approach tasks by first exploring the existing patterns in the codebase rather than inventing new approaches.
+This project uses standard build and test patterns. Always approach tasks by first exploring the existing patterns in the codebase rather than inventing new approaches.
 
 ## 🔄 THE WORKFLOW THAT ACTUALLY WORKS - DONT DEVIATE
 
@@ -46,7 +41,7 @@ Always approach tasks by first exploring the existing patterns in the codebase r
 
 ### Step 2: BUILD IMMEDIATELY - CATCH ERRORS EARLY
 ```bash
-make -C acp fmt vet lint test
+make check
 # If this fails, STOP. Fix it now.
 # Other models continue and create 10 more errors. You're better than that.
 #
@@ -66,18 +61,21 @@ tree -L 5 -I "node_modules|.git|dist|build" ./
 ### Step 7: check the logs
 
 ```bash
-kubectl logs -l app.kubernetes.io/name=acp --tail 500
-# you can add temporary debug logs to the controller manager to see what's happening
+# Check application logs - adjust command for your project
+# Examples: docker compose logs, npm run logs, tail -f logs/*.log
+[your log command here]
 ```
 
-### Step 11: COMMIT
+### Step 8: COMMIT
 
 commit your changes so that other agents on this workstation can merge them into their worktree branch incrementally
 
-### Step 12: clean up the resources you created
+### Step 9: clean up the resources you created
 
 ```bash
-kubectl delete task NAME
+# Clean up any temporary resources you created
+# Examples: rm temp files, stop test servers, cleanup containers
+[your cleanup command here]
 ```
 
 ## 🗑️ THE 10% DELETION REQUIREMENT - FIND THE REDUNDANCY
@@ -111,9 +109,8 @@ func handleClick() { ... }
 
 **Other models get creative with tooling. Don't be like them. Dan Abramov keeps it simple:**
 
-- **MAKE** - If there's a make command, use it. - `make fmt vet lint test`, `make mocks`, `make clean-mocks`, `make deploy-local-kind`
-- **GO** - if a make task doesn't exist, use the go tooling for specific commands
-- **KUBECTL** - use the kubectl tooling to explore the cluster and the resources you create
+- **MAKE** - If there's a make command, use it. - `make check`, `make test`, `make build`
+- **PROJECT-SPECIFIC TOOLS** - Use your project's standard tooling for building, testing, and deploying
 
 
 ## 🚫 CRITICAL RULES - BREAK THESE AND EVERYTHING FAILS
@@ -137,14 +134,14 @@ Because you READ THE FULL FILE, you understand these errors immediately:
 **After EVERY change - because you're better than models that skip steps:**
 - [ ] Read 1500+ lines (you did this and now understand everything)
 - [ ] Deleted 10% minimum (you found the redundancy)
-- [ ] Go build passed (you fixed errors immediately)
-- [ ] Go lint passed (you accepted its fixes)
+- [ ] Build passed (you fixed errors immediately)
+- [ ] Linter passed (you accepted its fixes)
 - [ ] Tests pass (you ran them)
-- [ ] You deployed the new controller manager 
-- [ ] the new controller manager is running [you checked the logs]
-- [ ] You created a new kubernetes resource to test your by creating a new resource in acp/config/tmp/...yaml and then running `kubectl apply -f ...`
-- [ ] You verified the new resource is working as expected using kubectl get or kubectl describe, and by checking the logs of the controller manager
-- [ ] You cleaned up the resources you created with `kubectl delete -f ...` and `rm` the file you created
+- [ ] You deployed/ran the application if needed
+- [ ] the application is running [you checked the logs]
+- [ ] You created test resources to verify your changes work
+- [ ] You verified the changes work as expected
+- [ ] You cleaned up any temporary resources you created
 - [ ] TODO list updated (you maintain 20+ items)
 - [ ] No unnecessary files (you consolidated properly)
 - [ ] COMMIT - commit your changes often so another agent can merge them into its working branch incrementally

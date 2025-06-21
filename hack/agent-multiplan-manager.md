@@ -40,17 +40,16 @@ Each call adds a new window to the `${MULTICLAUDE_TMUX_SESSION}` or `${REPO_NAME
 
 ## MONITORING & UNBLOCKING
 
+**Wait for a bit**: `sleep 120`
 **Check progress**: `git log --oneline -3 [branch]` every 2 minutes
-**Agent stuck?**: `tmux capture-pane -t session:window -p | tail -10`  
-**Agent waiting for approval?**: `tmux send-keys -t session:window "1" C-m`
+**Agent stuck?**: after 10 minutes with no changes - `tmux capture-pane -t session:window -p | tail -10`
+**Agent waiting for approval?**: `tmux send-keys -t session:window C-m`
 **Agent done but no commit?**: `tmux send-keys -t session:window "Please commit your completed work" C-m`
-
-**Agents MUST commit every 5-10 minutes. No exceptions.**
 
 ## PREVENT CONFLICTS
 
-**Before parallel launch**: Ensure plans specify which files each agent MODIFIES vs CREATES  
-**Shared files**: Only one agent touches package.json, src/cli.ts gets merged later  
+**Before parallel launch**: Ensure plans specify which files each agent MODIFIES vs CREATES
+**Shared files**: Only one agent touches package.json, src/cli.ts gets merged later
 **Permissions**: Create .claude/settings.project.json with common permissions before launch
 
 ## Example Usage
@@ -84,25 +83,24 @@ npx multiclaude cleanup integration-testing
 tmux list-windows -t ${MULTICLAUDE_TMUX_SESSION}
 
 # Check commits on agent branches
-for branch in feature-auth e2e-framework mcp-transport; do
+for branch in feature-1 feature-2 feature-3; do
   echo "=== $branch ==="
   git log --oneline -3 $branch
 done
 
 # Watch a specific agent's work
 tmux attach -t ${MULTICLAUDE_TMUX_SESSION}
-# Windows: 1-3=Claude, 4-6=CB, 7-8=Merge
-# Use Ctrl-b [window-number] to switch
+# Use Ctrl-b [window-number] to switch between agents
 
 # Monitor merge agent activity
-git log --oneline -10 integration-testing
+git log --oneline -10 main-branch
 ```
 
 ### Updating Merge Agent's Plan
 When adding new branches for the merge agent to monitor:
 ```bash
 # Edit the merge agent's plan directly
-vim /Users/dex/.humanlayer/worktrees/agentcontrolplane_merge/plan-merge-agent.md
+vim /Users/dex/.humanlayer/worktrees/[PROJECT]_merge/plan-merge-agent.md
 
 # The merge agent will pick up changes on its next monitoring cycle
 ```
@@ -133,4 +131,3 @@ cd /Users/dex/.humanlayer/worktrees/${REPO_NAME}_integration-testing
 git status
 git log --oneline -5
 ```
-
