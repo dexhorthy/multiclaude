@@ -32,6 +32,13 @@ your-project/
 └── ... (your existing project files)
 ```
 
+the manager agent will be instructed to use
+
+```
+npx multiclaude launch branch-name plan-file.md
+npx multiclaude cleanup branch-name
+```
+
 ### 2. Merge the template
 Copy or merge `CLAUDE.staged.md` into your `CLAUDE.md` file.
 

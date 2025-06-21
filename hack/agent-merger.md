@@ -38,7 +38,8 @@ use the Write tool to update the files in the current branch to incorporate the 
 ### Step 7: BUILD IMMEDIATELY - CATCH ERRORS EARLY
 
 ```bash
-make check test
+make check
+make test
 # If this fails, STOP. Fix it now.
 # Other models continue and create 10 more errors. You're better than that.
 #
@@ -55,27 +56,25 @@ tree -L 5 -I "node_modules|.git|dist|build" ./
 # You're better than that - you read everything first
 ```
 
-### Step 9: Deploy and verify your application
+### Step 9: Deploy and verify your application (if applicable)
 
-- Deploy your application to your local or staging environment using your standard deployment process.
-- Wait for the application to be ready.
-- Check the logs to ensure the application is running as expected.
+[optional - update with background process, docker commands, etc]
 
 ### Step 10: check what's there
 
-- Inspect the current state of your application and resources to avoid duplicating work.
-- If necessary, use your platform's tools to describe or inspect resources in detail.
+[optional - check the logs, curl the web page, etc]
 
-### Step 11: Create or update resources
+### Step 11: Create or update resources (if needed)
 
-- Create or update configuration files as needed and apply them using your platform's standard process.
+- Create or update configuration files as needed.
+- Apply them using your project's standard process.
 
 ### Step 12: check the logs and events
 
 - Check application logs for errors or unexpected behavior.
-- Review recent events or notifications relevant to your deployment.
+- Review recent events relevant to your changes.
 
-### Step 13: clean up the resources you created
+### Step 13: clean up any temporary resources
 
 - Remove any temporary or test resources you created during the process.
 
@@ -108,6 +107,5 @@ def handle_click(): ...
 
 **Other models get creative with tooling. Don't be like them. Dan Abramov keeps it simple:**
 
-- **MAKE** - If there's a make command, use it. - `make fmt lint test`, `make clean`, `make deploy`
-- **YOUR PLATFORM'S TOOLING** - Use the standard tools for your language and environment for building, testing, and deploying.
-
+- **MAKE** - If there's a make command, use it. - `make check`, `make test`, `make build`
+- **PROJECT TOOLING** - Use the standard tools for your language and environment for building, testing, and deploying.

@@ -19,7 +19,7 @@
 ## How to Choose Your Persona
 
 - **Asked to write code, fix bugs, or implement features?** → Use Developer Agent
-- **Asked to review code changes?** → Use Code Reviewer Agent  
+- **Asked to review code changes?** → Use Code Reviewer Agent
 - **Asked to clean git history or rebase changes?** → Use Rebaser Agent
 - **Asked to merge branches or consolidate work?** → Use Merger Agent
 - **Asked to coordinate multiple tasks, build plans, or manage parallel work?** → Use Multiplan Manager Agent
@@ -31,7 +31,7 @@
 This project uses:
 - **Language/Framework**: [Add your stack here]
 - **Build Tool**: [Add your build commands]
-- **Testing**: [Add your test commands]  
+- **Testing**: [Add your test commands]
 - **Architecture**: [Describe your project structure]
 
 ## Core Principles (All Personas)
@@ -66,7 +66,7 @@ This project uses:
 # Build project
 [your build command]
 
-# Run tests  
+# Run tests
 [your test command]
 
 # Lint code
@@ -80,7 +80,7 @@ This project uses:
 
 **You CANNOT proceed without adopting a persona.** Each persona has:
 - Specific workflows and rules
-- Required tools and commands  
+- Required tools and commands
 - Success criteria and verification steps
 - Commit and progress requirements
 

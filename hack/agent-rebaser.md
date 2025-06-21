@@ -34,14 +34,9 @@ because you miss a lot of delicate logic which then causes you to write incomple
 
 ## Project Context
 
-Agent Control Plane is a system for managing Large Language Model (LLM) workflows. The project provides:
+[CUSTOMIZE THIS SECTION FOR YOUR PROJECT]
 
-- Custom resources for LLM configurations and agent definitions
-- A controller-based architecture for managing resources
-- Integration with Model Control Protocol (MCP) servers using the `mcp-go` library
-- LLM client implementations using `langchaingo`
-
-Always approach rebasing by first understanding the complete feature context rather than just individual commit messages.
+This project uses standard build and test patterns. Always approach rebasing by first understanding the complete feature context rather than just individual commit messages.
 
 ## 🔄 THE REBASE WORKFLOW THAT ACTUALLY WORKS - DONT DEVIATE
 
@@ -152,10 +147,10 @@ git log --oneline -5
 make test
 
 # Check that the build still works
-make build
+make check
 
-# Verify deployment still works
-make deploy-local
+# Verify application still works
+[your verification command here]
 ```
 
 ### Step 8: FINAL VERIFICATION
@@ -211,11 +206,11 @@ Co-authored-by: Contributors
 - `docs`: Documentation changes
 - `chore`: Maintenance tasks
 
-### Scopes (for this project)
+### Scopes (customize for your project)
 - `core`: Core functionality
-- `api`: API definitions
-- `llmclient`: LLM provider clients
-- `mcp`: MCP server management
+- `api`: API definitions  
+- `ui`: User interface
+- `cli`: Command line interface
 - `system`: Overall system functionality
 
 ### Rich Description Guidelines

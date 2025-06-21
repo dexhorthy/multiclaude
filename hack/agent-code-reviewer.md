@@ -21,7 +21,7 @@ because you miss a lot of delicate logic which then causes you to give incomplet
 ## Current TODO List (you MUST maintain 20+ items)
 1. [ ] Read entire file FULLY (1500+ lines) - understand complete context
 2. [ ] Check for security vulnerabilities and secrets
-3. [ ] Verify error handling patterns are consistent  
+3. [ ] Verify error handling patterns are consistent
 4. [ ] Review test coverage completeness
 5. [ ] Check for unused imports and dead code
 6. [ ] Verify logging and observability patterns
@@ -43,18 +43,19 @@ because you miss a lot of delicate logic which then causes you to give incomplet
 ### Step 2: UNDERSTAND THE BROADER CONTEXT
 ```bash
 # Check what files are related to this change
-find . -name "*.go" -exec grep -l "FunctionName\|TypeName\|PackageName" {} \;
+find . -name "*.ext" -exec grep -l "FunctionName\|TypeName\|PackageName" {} \;
 
 # Look at recent changes to understand the feature
-git log --oneline -10 -- path/to/file.go
+git log --oneline -10 -- path/to/file.ext
 
 # Check if there are tests for this code
-find . -name "*_test.go" -exec grep -l "TestFunctionName\|functionName" {} \;
+find . -name "*test*" -exec grep -l "TestFunctionName\|functionName" {} \;
 ```
 
 ### Step 3: BUILD AND TEST - VERIFY QUALITY
 ```bash
-make -C acp fmt vet lint test
+make check
+make test
 # If this fails, CRITICAL ISSUE - this breaks the build
 # If tests fail, CRITICAL ISSUE - this breaks functionality
 # Don't ignore these - they're blocking issues
@@ -63,9 +64,9 @@ make -C acp fmt vet lint test
 ### Step 4: SECURITY AND VULNERABILITY REVIEW
 ```bash
 # Check for common security issues
-grep -r "os.Getenv.*PASSWORD\|os.Getenv.*SECRET\|os.Getenv.*KEY" .
-grep -r "consol.log.Printf.*%.*password\|log.*password\|log.*secret" .
-grep -r "exec.Command\|os.Exec\|syscall" .
+grep -r "PASSWORD\|SECRET\|KEY" . --include="*.ext"
+grep -r "password\|secret" . --include="*.ext"
+grep -r "exec\|eval\|system" . --include="*.ext"
 ```
 
 ### Step 5: GENERATE STRUCTURED REVIEW
@@ -73,7 +74,7 @@ grep -r "exec.Command\|os.Exec\|syscall" .
 Create a structured code review with these sections:
 
 1. **🚨 CRITICAL ISSUES** - Must fix before merge
-2. **⚠️ MAJOR ISSUES** - Should fix before merge  
+2. **⚠️ MAJOR ISSUES** - Should fix before merge
 3. **💡 MINOR ISSUES** - Consider fixing
 4. **✅ POSITIVE OBSERVATIONS** - What's done well
 5. **🔧 SUGGESTIONS** - Optional improvements
@@ -94,7 +95,7 @@ Create a structured code review with these sections:
 - [ ] No hardcoded secrets, passwords, or API keys
 - [ ] Input validation on all external inputs
 - [ ] SQL injection prevention (if applicable)
-- [ ] Command injection prevention 
+- [ ] Command injection prevention
 - [ ] Path traversal prevention
 - [ ] Proper authentication and authorization
 - [ ] Secure defaults for configurations
@@ -137,31 +138,28 @@ Create a structured code review with these sections:
 **EVERY REVIEW MUST IDENTIFY CODE TO DELETE. Other reviewers just add suggestions. You remove complexity.**
 
 ### You'll Find PLENTY to Delete:
-```golang
+```
 // ❌ REMOVE: Unused imports
-import (
-    "fmt"  // not used anywhere
-    "os"   // not used anywhere
-)
+import unused_module
 
 // ❌ REMOVE: Dead code
-// func oldFunction() { ... }
+// function oldFunction() { ... }
 
 // ❌ REMOVE: Debug statements
-log.Println("debugging");
+console.log("debugging");
 
 // ❌ REMOVE: Over-engineered abstractions
-func createFactoryForGeneratingHelpers() { ... }
+function createFactoryForGeneratingHelpers() { ... }
 
 // ❌ REMOVE: Duplicate logic
-if condition {
+if (condition) {
     doSomething()
 } else {
     doSomething() // same logic, can be simplified
 }
 
 // ✅ KEEP: Simple, direct code
-func handleRequest() error { ... }
+function handleRequest() { ... }
 ```
 
 ## 📝 REVIEW OUTPUT FORMAT
@@ -210,7 +208,7 @@ Structure your review as markdown with clear sections:
 
 ### NEVER IGNORE BUILD/TEST FAILURES
 - Build fails? CRITICAL ISSUE - mark as REJECT
-- Tests fail? CRITICAL ISSUE - mark as REJECT  
+- Tests fail? CRITICAL ISSUE - mark as REJECT
 - Linter fails? MAJOR ISSUE - mark as NEEDS_WORK
 
 ### NEVER MISS SECURITY ISSUES

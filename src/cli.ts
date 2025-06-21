@@ -1,8 +1,8 @@
 #!/usr/bin/env node
 
 import { Command } from 'commander';
-import { initProject } from './init';
 import { Cleanup } from './cleanup.js';
+import { initProject } from './init';
 import { Launcher } from './launcher.js';
 import type { InitOptions } from './types';
 
