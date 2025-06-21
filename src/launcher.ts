@@ -247,7 +247,7 @@ export class Launcher {
     await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "$(cat prompt.md)"', 'C-m']);
 
     // Wait and handle Claude trust prompt
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     await this.runCommand('tmux', ['send-keys', '-t', target, 'C-m']);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
