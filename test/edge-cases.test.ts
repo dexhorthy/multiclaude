@@ -24,12 +24,12 @@ describe('Edge Cases and Error Handling', () => {
 
   describe('Directory Permissions', () => {
     it('should handle directory creation failures gracefully', async () => {
-      // Create a scenario where .promptx creation might fail
+      // Create a scenario where .multiclaude creation might fail
       const readOnlyParent = join(testDir, 'readonly-parent');
       mkdirSync(readOnlyParent);
       
-      // Create a read-only file where we want to create .promptx
-      const blockingFile = join(readOnlyParent, '.promptx');
+      // Create a read-only file where we want to create .multiclaude
+      const blockingFile = join(readOnlyParent, '.multiclaude');
       writeFileSync(blockingFile, 'blocking file');
       
       process.chdir(readOnlyParent);
@@ -44,7 +44,7 @@ describe('Edge Cases and Error Handling', () => {
       process.chdir(deepDir);
 
       await expect(suppressConsoleOutput(() => initProject())).resolves.not.toThrow();
-      expect(existsSync(join(deepDir, '.promptx'))).toBe(true);
+      expect(existsSync(join(deepDir, '.multiclaude'))).toBe(true);
     });
 
     it('should handle special characters in directory names', async () => {
@@ -57,7 +57,7 @@ describe('Edge Cases and Error Handling', () => {
         process.chdir(specialDir);
 
         await expect(suppressConsoleOutput(() => initProject())).resolves.not.toThrow();
-        expect(existsSync(join(specialDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(specialDir, '.multiclaude'))).toBe(true);
         
         // Reset for next iteration
         process.chdir(testDir);
@@ -66,13 +66,13 @@ describe('Edge Cases and Error Handling', () => {
   });
 
   describe('Existing File Conflicts', () => {
-    it('should handle existing .promptx directory with files', async () => {
-      createMockProject(testDir, { hasExistingPromptx: true });
+    it('should handle existing .multiclaude directory with files', async () => {
+      createMockProject(testDir, { hasExistingMulticlaude: true });
 
       const { result, logs } = await captureConsoleOutput(() => initProject());
       
       expect(logs.some(log => log.includes('already exists'))).toBe(true);
-      expect(existsSync(join(testDir, '.promptx', 'personas'))).toBe(true);
+      expect(existsSync(join(testDir, '.multiclaude', 'personas'))).toBe(true);
     });
 
     it('should handle existing CLAUDE.staged.md file', async () => {
@@ -137,7 +137,7 @@ other-target:
         process.chdir(longDir);
 
         await expect(suppressConsoleOutput(() => initProject())).resolves.not.toThrow();
-        expect(existsSync(join(longDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(longDir, '.multiclaude'))).toBe(true);
       } catch (error) {
         // If the system can't handle the long path, that's expected
         console.warn('System limit reached for long paths, skipping test');
@@ -163,7 +163,7 @@ other-target:
 
       // Verify all directories were created
       for (let i = 0; i < 5; i++) {
-        expect(existsSync(join(testDir, `concurrent-${i}`, '.promptx'))).toBe(true);
+        expect(existsSync(join(testDir, `concurrent-${i}`, '.multiclaude'))).toBe(true);
       }
     });
 
@@ -181,7 +181,7 @@ other-target:
         await expect(suppressConsoleOutput(() => initProject())).resolves.not.toThrow();
         
         // Should create files in the real directory
-        expect(existsSync(join(realDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(realDir, '.multiclaude'))).toBe(true);
       } catch (error) {
         console.warn('Symlink test skipped (not supported on this system)');
       }
@@ -205,7 +205,7 @@ other-target:
       // For now, test that the init process is robust
       
       await expect(suppressConsoleOutput(() => initProject())).resolves.not.toThrow();
-      expect(existsSync(join(testDir, '.promptx'))).toBe(true);
+      expect(existsSync(join(testDir, '.multiclaude'))).toBe(true);
     });
   });
 
@@ -237,7 +237,7 @@ other-target:
         await suppressConsoleOutput(() => initProject());
         
         // Verify complete state
-        expect(existsSync(join(testDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(testDir, '.multiclaude'))).toBe(true);
         expect(existsSync(join(testDir, 'CLAUDE.staged.md'))).toBe(true);
       } catch (error) {
         interruptedDuringCreation = true;
@@ -245,7 +245,7 @@ other-target:
 
       if (!interruptedDuringCreation) {
         // Normal completion - all files should exist
-        expect(existsSync(join(testDir, '.promptx', 'personas'))).toBe(true);
+        expect(existsSync(join(testDir, '.multiclaude', 'personas'))).toBe(true);
       }
     });
   });
@@ -265,7 +265,7 @@ other-target:
       await suppressConsoleOutput(() => initProject());
 
       // Verify that file names are consistent
-      const personasDir = join(testDir, '.promptx', 'personas');
+      const personasDir = join(testDir, '.multiclaude', 'personas');
       expect(existsSync(join(personasDir, 'agent-developer.md'))).toBe(true);
       
       // On case-insensitive file systems (like macOS), verify we have the right filename

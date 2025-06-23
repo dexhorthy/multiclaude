@@ -27,10 +27,10 @@ describe('Package Distribution Tests', () => {
       const packageJson = JSON.parse(readFileSync(packageJsonPath, 'utf-8'));
 
       // Check essential fields for npm publishing
-      expect(packageJson.name).toBe('promptx');
+      expect(packageJson.name).toBe('multiclaude');
       expect(packageJson.version).toMatch(/^\d+\.\d+\.\d+/);
       expect(packageJson.bin).toBeDefined();
-      expect(packageJson.bin.promptx).toBeDefined();
+      expect(packageJson.bin.multiclaude).toBeDefined();
       expect(packageJson.files).toContain('dist');
       expect(packageJson.files).toContain('hack');
       expect(packageJson.main).toBeDefined();
@@ -77,7 +77,7 @@ describe('Package Distribution Tests', () => {
         
         // Check that CLI binary was built
         const packageJson = JSON.parse(readFileSync(join(originalCwd, 'package.json'), 'utf-8'));
-        const cliPath = join(originalCwd, packageJson.bin.promptx);
+        const cliPath = join(originalCwd, packageJson.bin.multiclaude);
         expect(existsSync(cliPath)).toBe(true);
       } catch (error) {
         console.error('Build failed:', error);
@@ -93,7 +93,7 @@ describe('Package Distribution Tests', () => {
         });
 
         const packageJson = JSON.parse(readFileSync(join(originalCwd, 'package.json'), 'utf-8'));
-        const cliPath = join(originalCwd, packageJson.bin.promptx);
+        const cliPath = join(originalCwd, packageJson.bin.multiclaude);
         
         // Test that the binary can be executed
         const result = execCommand(`node "${cliPath}" --help`, { cwd: testDir });
@@ -179,9 +179,9 @@ describe('Package Distribution Tests', () => {
         
         // Create a minimal package.json in test directory
         const testPackageJson = {
-          name: 'promptx',
+          name: 'multiclaude',
           version: '0.1.0',
-          bin: { promptx: './dist/cli.js' },
+          bin: { multiclaude: './dist/cli.js' },
           files: ['dist', 'hack'],
           dependencies: {
             commander: 'latest',
@@ -204,7 +204,7 @@ describe('Package Distribution Tests', () => {
         }
         
         expect(result.success).toBe(true);
-        expect(existsSync(join(initTestDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(initTestDir, '.multiclaude'))).toBe(true);
         expect(existsSync(join(initTestDir, 'CLAUDE.staged.md'))).toBe(true);
       } catch (error) {
         console.error('NPX simulation failed:', error);
@@ -217,7 +217,7 @@ describe('Package Distribution Tests', () => {
     it('should handle different path separators', () => {
       // Test path handling for Windows vs Unix
       const packageJson = JSON.parse(readFileSync(join(originalCwd, 'package.json'), 'utf-8'));
-      const binPath = packageJson.bin.promptx;
+      const binPath = packageJson.bin.multiclaude;
       
       // Should use forward slashes (npm handles conversion)
       expect(binPath).toBe('./dist/cli.js');
@@ -291,7 +291,7 @@ describe('Package Distribution Tests', () => {
         // Verify all directories were created
         for (let i = 0; i < concurrentTests; i++) {
           const concurrentTestDir = join(testDir, `concurrent-${i}`);
-          expect(existsSync(join(concurrentTestDir, '.promptx'))).toBe(true);
+          expect(existsSync(join(concurrentTestDir, '.multiclaude'))).toBe(true);
         }
       } catch (error) {
         console.error('Concurrent execution test failed:', error);

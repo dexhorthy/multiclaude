@@ -12,7 +12,7 @@ export interface TestDirectory {
  * Creates a temporary test directory with automatic cleanup
  */
 export function createTestDirectory(): TestDirectory {
-  const testDir = join(tmpdir(), `promptx-test-${Date.now()}-${Math.random().toString(36).substring(7)}`);
+  const testDir = join(tmpdir(), `multiclaude-test-${Date.now()}-${Math.random().toString(36).substring(7)}`);
   mkdirSync(testDir, { recursive: true });
 
   return {
@@ -144,7 +144,7 @@ export function verifyMakefile(makefilePath: string): void {
 export function createMockProject(testDir: string, options: {
   hasPackageJson?: boolean;
   hasExistingMakefile?: boolean;
-  hasExistingPromptx?: boolean;
+  hasExistingMulticlaude?: boolean;
 } = {}): void {
   if (options.hasPackageJson) {
     const packageJson = {
@@ -169,9 +169,9 @@ build:
     writeFileSync(join(testDir, 'Makefile'), makefile);
   }
 
-  if (options.hasExistingPromptx) {
-    mkdirSync(join(testDir, '.promptx', 'personas'), { recursive: true });
-    writeFileSync(join(testDir, '.promptx', 'test.txt'), 'existing file');
+  if (options.hasExistingMulticlaude) {
+    mkdirSync(join(testDir, '.multiclaude', 'personas'), { recursive: true });
+    writeFileSync(join(testDir, '.multiclaude', 'test.txt'), 'existing file');
   }
 }
 

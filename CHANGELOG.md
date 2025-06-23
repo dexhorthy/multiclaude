@@ -5,6 +5,26 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.5.0] - 2025-06-23
+
+### Added
+- **NEW**: HumanLayer integration with `--humanlayer` flag
+- Enhanced CLI output during initialization with better formatting and logging
+- Timestamped logging for better debugging and status tracking
+- Support for launching workers with HumanLayer instead of tmux sessions
+
+### Improved
+- Better error handling and cleanup for failed worktree setups
+- Enhanced launcher with prerequisite checking for both tmux and HumanLayer workflows
+- More informative status messages during worker launch process
+- Cleaner command output with structured logging
+
+## [0.4.0] - 2025-06-20
+
+### Changed
+- Version bump with internal improvements
+- Package maintenance and dependency updates
+
 ## [0.3.0] - 2025-06-21
 
 ### Changed

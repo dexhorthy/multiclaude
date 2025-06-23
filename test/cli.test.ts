@@ -10,7 +10,7 @@ describe('CLI Integration Tests', () => {
 
   beforeEach(() => {
     originalCwd = process.cwd();
-    testDir = join(tmpdir(), `promptx-cli-test-${Date.now()}-${Math.random().toString(36).substring(7)}`);
+    testDir = join(tmpdir(), `multiclaude-cli-test-${Date.now()}-${Math.random().toString(36).substring(7)}`);
     mkdirSync(testDir, { recursive: true });
     process.chdir(testDir);
   });
@@ -32,7 +32,7 @@ describe('CLI Integration Tests', () => {
           stdio: 'pipe'
         });
 
-        expect(existsSync(join(testDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(testDir, '.multiclaude'))).toBe(true);
         expect(existsSync(join(testDir, 'CLAUDE.staged.md'))).toBe(true);
       } catch (error) {
         console.error('CLI execution failed:', error);
@@ -100,7 +100,7 @@ describe('CLI Integration Tests', () => {
           stdio: 'pipe'
         });
 
-        expect(existsSync(join(testDir, '.promptx'))).toBe(true);
+        expect(existsSync(join(testDir, '.multiclaude'))).toBe(true);
         expect(existsSync(join(testDir, 'CLAUDE.staged.md'))).toBe(true);
       } catch (error) {
         console.error('Built CLI execution failed:', error);
