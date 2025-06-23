@@ -19,6 +19,7 @@ program
   .description('Initialize agent personas and project structure')
   .option('-v, --verbose', 'Verbose output')
   .option('-o, --overwrite', 'Overwrite existing .multiclaude directory')
+  .option('--ignore-missing-prereqs', 'Allow initialization even if system prerequisites are missing')
   .action(async (options: InitOptions) => {
     await initProject(options);
   });

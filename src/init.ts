@@ -304,7 +304,7 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
   const systemCheck = await checkSystemRequirements();
   const gitOk = await checkGitRepository();
 
-  if (!systemCheck.allRequired || !gitOk) {
+  if ((!systemCheck.allRequired || !gitOk) && !options.ignoreMissingPrereqs) {
     console.log(`\n${chalk.bold.red('Setup Issues Detected')}`);
     if (!systemCheck.allRequired) {
       error('Please install missing prerequisites before continuing');
@@ -313,7 +313,12 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
       error('Please set up git repository before continuing');
     }
     console.log(`\n${chalk.blue('*')} Run ${chalk.cyan('npx multiclaude init')} again after resolving these issues.`);
+    console.log(`${chalk.blue('*')} Or use ${chalk.cyan('--ignore-missing-prereqs')} to skip these checks.`);
     process.exit(1);
+  }
+  
+  if ((!systemCheck.allRequired || !gitOk) && options.ignoreMissingPrereqs) {
+    warn('Ignoring missing prerequisites as requested');
   }
 
   console.log(`\n${chalk.bold.green('System ready! Initializing multiclaude...')}`);

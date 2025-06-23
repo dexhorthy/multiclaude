@@ -1,6 +1,7 @@
 export interface InitOptions {
   verbose?: boolean;
   overwrite?: boolean;
+  ignoreMissingPrereqs?: boolean;
 }
 
 export interface LauncherConfig {

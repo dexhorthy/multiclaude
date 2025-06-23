@@ -22,5 +22,5 @@ jobs:
       run: |
         node dist/cli.js --version
         mkdir test-dir && cd test-dir
-        node ../dist/cli.js init
+        node ../dist/cli.js init --ignore-missing-prereqs
         test -f CLAUDE.staged.md
