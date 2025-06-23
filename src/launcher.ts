@@ -61,7 +61,7 @@ export class Launcher {
 
   private async checkPrerequisites(options: LaunchOptions = {}): Promise<void> {
     const commands = ['git'];
-    
+
     if (options.humanlayer) {
       commands.push('humanlayer');
     } else {
@@ -116,9 +116,13 @@ export class Launcher {
       throw new Error(`Failed to create worktree: ${result.stderr}`);
     }
 
-    // Copy .claude directory
-    if (fs.existsSync('.claude')) {
-      fs.cpSync('.claude', path.join(info.worktreeDir, '.claude'), { recursive: true });
+    // Copy .claude directory from current working directory
+    const claudeDir = path.join(process.cwd(), '.claude');
+    if (fs.existsSync(claudeDir)) {
+      this.log(`Copying .claude directory from ${claudeDir}`);
+      fs.cpSync(claudeDir, path.join(info.worktreeDir, '.claude'), { recursive: true });
+    } else {
+      this.warn('.claude directory not found in current working directory');
     }
 
     // Copy plan file
@@ -250,7 +254,13 @@ export class Launcher {
     // Environment setup can be customized via Makefile setup target
 
     this.log(`Starting Claude Code in worktree: ${info.worktreeDir}`);
-    await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "Please read prompt.md and get to work"', 'C-m']);
+    await this.runCommand('tmux', [
+      'send-keys',
+      '-t',
+      target,
+      'claude "Please read prompt.md and get to work"',
+      'C-m',
+    ]);
 
     // Wait and handle Claude trust prompt
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -264,11 +274,21 @@ export class Launcher {
     await this.runCommand('tmux', ['send-keys', '-t', target, 'S-Tab']);
   }
 
-  private async launchHumanLayer(info: WorktreeInfo): Promise<void> {
+  private async launchHumanLayer(info: WorktreeInfo, options: LaunchOptions = {}): Promise<void> {
     this.log(`Starting HumanLayer in worktree: ${info.worktreeDir}`);
-    
-    // Launch HumanLayer with a simple instruction to read the prompt file
-    const result = await this.runCommand('npx', ['humanlayer', 'launch', '--working-dir', info.worktreeDir, 'Please read prompt.md and get to work'], {
+
+    // Build simple arguments with only working directory
+    const args = ['humanlayer', 'launch'];
+
+    // Working directory (supported: -w, --working-dir)
+    args.push('--working-dir', info.worktreeDir);
+
+    // Add the query/prompt
+    args.push('Please read prompt.md and get to work');
+
+    this.log(`Running command: npx ${args.join(' ')}`);
+
+    const result = await this.runCommand('npx', args, {
       cwd: info.worktreeDir,
     });
 
@@ -294,7 +314,7 @@ export class Launcher {
       this.createPromptFile(info);
 
       if (options.humanlayer) {
-        await this.launchHumanLayer(info);
+        await this.launchHumanLayer(info, options);
         this.log('✅ HumanLayer worker launched successfully!');
         console.log();
         console.log(`Branch: ${branchName}`);
