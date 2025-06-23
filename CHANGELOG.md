@@ -5,6 +5,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [0.6.0] - 2025-06-23
+
+### Added
+- New reset functionality `npx multiclaude reset` - deletes files, agents, and worktrees
+- Generate correct CLI version during build
+- Improved launcher testing
+
+### Improved
+- **MAJOR**: Cleanup tests suite to minimal coverage set
+- Simplified CLI testing with more focused test scenarios
+
 ## [0.5.0] - 2025-06-23
 
 ### Added
@@ -43,7 +54,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 ### Files Updated
 - `hack/agent-developer.md` - Generic development workflow
-- `hack/agent-code-reviewer.md` - Generic code review process  
+- `hack/agent-code-reviewer.md` - Generic code review process
 - `hack/agent-rebaser.md` - Generic git history management
 - `hack/agent-merger.md` - Generic branch merging workflow
 - `hack/agent-multiplan-manager.md` - Generic parallel work coordination

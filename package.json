@@ -1,6 +1,6 @@
 {
   "name": "multiclaude",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "description": "AI-powered CLI tool for project scaffolding and development workflow automation",
   "main": "dist/index.mjs",
   "bin": {
