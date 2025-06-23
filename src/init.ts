@@ -414,6 +414,7 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
     console.log(chalk.white('Launch Claude Code CLI and instruct it to adopt the manager persona,'));
     console.log(chalk.white('then point it at your next project or feature spec to get started,'));
     console.log(chalk.white('or just explain what you want to build.'));
+    console.log(chalk.gray('  claude \'adopt the manager persona and prepare plans for the features in rambling-feature-thoughts.md\''));
   } catch (error) {
     console.error(chalk.red('- Error during initialization:'));
     if (error instanceof Error) {

@@ -29,8 +29,9 @@ program
   .argument('<plan-file>', 'Plan file for the agent to execute')
   .option('-v, --verbose', 'Verbose output')
   .option('-d, --debug', 'Debug output')
+  .option('--humanlayer', 'Use HumanLayer launch instead of tmux session')
   .action(
-    async (branch: string, planFile: string, options: { verbose?: boolean; debug?: boolean }) => {
+    async (branch: string, planFile: string, options: { verbose?: boolean; debug?: boolean; humanlayer?: boolean }) => {
       const launcher = new Launcher();
       await launcher.launch(branch, planFile, options);
     },
