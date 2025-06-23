@@ -59,8 +59,14 @@ export class Launcher {
     });
   }
 
-  private async checkPrerequisites(): Promise<void> {
-    const commands = ['git', 'tmux', 'claude'];
+  private async checkPrerequisites(options: LaunchOptions = {}): Promise<void> {
+    const commands = ['git'];
+    
+    if (options.humanlayer) {
+      commands.push('humanlayer');
+    } else {
+      commands.push('tmux', 'claude');
+    }
 
     for (const cmd of commands) {
       try {
@@ -247,7 +253,7 @@ export class Launcher {
     await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "$(cat prompt.md)"', 'C-m']);
 
     // Wait and handle Claude trust prompt
-    await new Promise((resolve) => setTimeout(resolve, 2000));
+    await new Promise((resolve) => setTimeout(resolve, 5000));
     await this.runCommand('tmux', ['send-keys', '-t', target, 'C-m']);
 
     await new Promise((resolve) => setTimeout(resolve, 1000));
@@ -258,11 +264,28 @@ export class Launcher {
     await this.runCommand('tmux', ['send-keys', '-t', target, 'S-Tab']);
   }
 
+  private async launchHumanLayer(info: WorktreeInfo): Promise<void> {
+    this.log(`Starting HumanLayer in worktree: ${info.worktreeDir}`);
+    
+    // Read the prompt file to pass as the query to HumanLayer
+    const promptPath = path.join(info.worktreeDir, 'prompt.md');
+    const prompt = fs.readFileSync(promptPath, 'utf-8');
+    
+    // Launch HumanLayer with the working directory set to the worktree
+    const result = await this.runCommand('npx', ['humanlayer', 'launch', '--working-dir', info.worktreeDir, prompt], {
+      cwd: info.worktreeDir,
+    });
+
+    if (result.code !== 0) {
+      throw new Error(`HumanLayer launch failed: ${result.stderr}`);
+    }
+  }
+
   async launch(branchName: string, planFile: string, options: LaunchOptions = {}): Promise<void> {
     try {
       this.log(`Starting worker: ${branchName} with plan: ${planFile}`);
 
-      await this.checkPrerequisites();
+      await this.checkPrerequisites(options);
 
       if (!fs.existsSync(planFile)) {
         throw new Error(`Plan file not found: ${planFile}`);
@@ -273,24 +296,36 @@ export class Launcher {
       await this.createWorktree(info);
       await this.setupWorktree(info);
       this.createPromptFile(info);
-      await this.createTmuxWindow(info);
-      await this.launchClaude(info);
 
-      this.log('✅ Worker launched successfully!');
-      console.log();
-      console.log(`Session: ${this.config.tmuxSession}`);
-      console.log(`Branch: ${branchName}`);
-      console.log(`Plan: ${planFile}`);
-      console.log(`Worktree: ${info.worktreeDir}`);
-      console.log();
-      console.log('To attach to the session:');
-      console.log(`  tmux attach -t ${this.config.tmuxSession}`);
-      console.log();
-      console.log('To switch to this window:');
-      console.log(`  tmux select-window -t ${this.config.tmuxSession}:${info.tmuxWindow}`);
-      console.log();
-      console.log('To clean up later:');
-      console.log(`  npx multiclaude cleanup ${branchName}`);
+      if (options.humanlayer) {
+        await this.launchHumanLayer(info);
+        this.log('✅ HumanLayer worker launched successfully!');
+        console.log();
+        console.log(`Branch: ${branchName}`);
+        console.log(`Plan: ${planFile}`);
+        console.log(`Worktree: ${info.worktreeDir}`);
+        console.log();
+        console.log('To clean up later:');
+        console.log(`  npx multiclaude cleanup ${branchName}`);
+      } else {
+        await this.createTmuxWindow(info);
+        await this.launchClaude(info);
+        this.log('✅ Worker launched successfully!');
+        console.log();
+        console.log(`Session: ${this.config.tmuxSession}`);
+        console.log(`Branch: ${branchName}`);
+        console.log(`Plan: ${planFile}`);
+        console.log(`Worktree: ${info.worktreeDir}`);
+        console.log();
+        console.log('To attach to the session:');
+        console.log(`  tmux attach -t ${this.config.tmuxSession}`);
+        console.log();
+        console.log('To switch to this window:');
+        console.log(`  tmux select-window -t ${this.config.tmuxSession}:${info.tmuxWindow}`);
+        console.log();
+        console.log('To clean up later:');
+        console.log(`  npx multiclaude cleanup ${branchName}`);
+      }
     } catch (error) {
       this.error(`Launch failed: ${error instanceof Error ? error.message : String(error)}`);
       process.exit(1);

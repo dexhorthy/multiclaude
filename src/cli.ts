@@ -5,13 +5,14 @@ import { Cleanup } from './cleanup.js';
 import { initProject } from './init';
 import { Launcher } from './launcher.js';
 import type { InitOptions } from './types';
+import { VERSION } from './version.js';
 
 const program = new Command();
 
 program
   .name('multiclaude')
   .description('AI-powered CLI tool for project scaffolding and development workflow automation')
-  .version('0.2.1');
+  .version(VERSION);
 
 program
   .command('init')
@@ -29,8 +30,9 @@ program
   .argument('<plan-file>', 'Plan file for the agent to execute')
   .option('-v, --verbose', 'Verbose output')
   .option('-d, --debug', 'Debug output')
+  .option('--humanlayer', 'Use HumanLayer launch instead of tmux session')
   .action(
-    async (branch: string, planFile: string, options: { verbose?: boolean; debug?: boolean }) => {
+    async (branch: string, planFile: string, options: { verbose?: boolean; debug?: boolean; humanlayer?: boolean }) => {
       const launcher = new Launcher();
       await launcher.launch(branch, planFile, options);
     },
@@ -48,10 +50,20 @@ program
   });
 
 program
+  .command('reset')
+  .description('Reset and cleanup all directories and staged files')
+  .option('-v, --verbose', 'Verbose output')
+  .option('-d, --debug', 'Debug output')
+  .action(async (options: { verbose?: boolean; debug?: boolean }) => {
+    const cleanup = new Cleanup();
+    await cleanup.reset(options);
+  });
+
+program
   .command('version')
   .description('Show version information')
   .action(() => {
-    console.log('multiclaude v0.2.1');
+    console.log(`multiclaude v${VERSION}`);
   });
 
 program.parse();

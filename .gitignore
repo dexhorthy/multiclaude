@@ -75,3 +75,5 @@ dist
 # Temporary folders
 tmp/
 temp/
+# HumanLayer thoughts directory (root level only)
+/thoughts/

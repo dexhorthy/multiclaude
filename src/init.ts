@@ -1,5 +1,7 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, join, resolve } from 'node:path';
+import { spawn } from 'node:child_process';
+import * as os from 'node:os';
 import chalk from 'chalk';
 import type { InitOptions } from './types';
 
@@ -28,6 +30,162 @@ function findHackDir(): string {
 }
 
 const HACK_DIR = findHackDir();
+
+async function runCommand(
+  command: string,
+  args: string[],
+  options: { cwd?: string } = {},
+): Promise<{ stdout: string; stderr: string; code: number }> {
+  return new Promise((resolve) => {
+    const child = spawn(command, args, {
+      stdio: ['inherit', 'pipe', 'pipe'],
+      cwd: options.cwd || process.cwd(),
+    });
+
+    let stdout = '';
+    let stderr = '';
+
+    child.stdout?.on('data', (data) => {
+      stdout += data.toString();
+    });
+
+    child.stderr?.on('data', (data) => {
+      stderr += data.toString();
+    });
+
+    child.on('close', (code) => {
+      resolve({ stdout, stderr, code: code || 0 });
+    });
+
+    child.on('error', () => {
+      resolve({ stdout, stderr, code: 1 });
+    });
+  });
+}
+
+async function checkCommand(command: string): Promise<boolean> {
+  const result = await runCommand('which', [command]);
+  return result.code === 0;
+}
+
+function log(message: string): void {
+  console.log(`${chalk.green('+')} ${message}`);
+}
+
+function warn(message: string): void {
+  console.log(`${chalk.yellow('!')} ${message}`);
+}
+
+function error(message: string): void {
+  console.log(`${chalk.red('-')} ${message}`);
+}
+
+function info(message: string): void {
+  console.log(`${chalk.blue('*')} ${message}`);
+}
+
+async function checkTmuxSession(): Promise<boolean> {
+  try {
+    const result = await runCommand('tmux', ['display-message', '-p', '#{session_name}']);
+    return result.code === 0 && result.stdout.trim().length > 0;
+  } catch {
+    return false;
+  }
+}
+
+async function checkSystemRequirements(): Promise<{ allRequired: boolean; inTmuxSession: boolean }> {
+  console.log(`\n${chalk.bold('System Requirements Check')}`);
+  
+  // Check OS
+  const platform = os.platform();
+  info(`Platform: ${platform} (${os.arch()})`);
+  
+  if (platform === 'darwin') {
+    log('macOS detected - fully supported');
+  } else if (platform === 'linux') {
+    log('Linux detected - fully supported');
+  } else if (platform === 'win32') {
+    warn('Windows detected - may require WSL for best experience');
+  }
+
+  // Check prerequisites
+  const requirements = [
+    { command: 'git', name: 'Git', required: true },
+    { command: 'tmux', name: 'tmux', required: true },
+    { command: 'claude', name: 'Claude Code CLI', required: true },
+  ];
+
+  let allRequired = true;
+
+  for (const req of requirements) {
+    const isInstalled = await checkCommand(req.command);
+    
+    if (isInstalled) {
+      log(`${req.name} is installed`);
+    } else {
+      if (req.required) {
+        error(`${req.name} is required but not installed`);
+        allRequired = false;
+        
+        if (req.command === 'tmux') {
+          info('  Install: brew install tmux (macOS) or apt-get install tmux (Ubuntu)');
+        } else if (req.command === 'claude') {
+          info('  Install: https://claude.ai/code - Download Claude Code CLI');
+        }
+      }
+    }
+  }
+
+  // Check if we're in a tmux session
+  const inTmuxSession = await checkTmuxSession();
+  if (inTmuxSession) {
+    log('Running inside tmux session');
+  } else {
+    info('Not in a tmux session');
+  }
+
+  return { allRequired, inTmuxSession };
+}
+
+async function checkGitRepository(): Promise<boolean> {
+  console.log(`\n${chalk.bold('Git Repository Check')}`);
+  
+  // Check if we're in a git repository
+  const gitStatus = await runCommand('git', ['status', '--porcelain']);
+  if (gitStatus.code !== 0) {
+    error('Not in a git repository');
+    info('Run: git init');
+    return false;
+  }
+  
+  log('Git repository detected');
+  
+  // Check git status
+  const statusResult = await runCommand('git', ['status', '--short']);
+  if (statusResult.stdout.trim()) {
+    warn('Working directory has uncommitted changes');
+    info('Consider committing changes before using multiclaude');
+  } else {
+    log('Working directory is clean');
+  }
+  
+  // Check current branch
+  const branchResult = await runCommand('git', ['branch', '--show-current']);
+  if (branchResult.code === 0) {
+    const currentBranch = branchResult.stdout.trim();
+    info(`Current branch: ${currentBranch}`);
+  }
+  
+  // List branches
+  const allBranchesResult = await runCommand('git', ['branch', '-a']);
+  if (allBranchesResult.code === 0) {
+    const branches = allBranchesResult.stdout.trim().split('\n').slice(0, 5); // Show first 5
+    info(`Available branches: ${branches.map(b => b.trim()).join(', ')}`);
+  }
+
+  return true;
+}
+
 
 const CLAUDE_STAGED_TEMPLATE = `# AI Assistant Instructions
 
@@ -139,6 +297,27 @@ teardown:
 `;
 
 export async function initProject(options: InitOptions = {}): Promise<void> {
+  console.log(`${chalk.bold.blue('Welcome to multiclaude')}`);
+  console.log('Checking system and setting up project...\n');
+
+  // Run onboarding checks first
+  const systemCheck = await checkSystemRequirements();
+  const gitOk = await checkGitRepository();
+
+  if (!systemCheck.allRequired || !gitOk) {
+    console.log(`\n${chalk.bold.red('Setup Issues Detected')}`);
+    if (!systemCheck.allRequired) {
+      error('Please install missing prerequisites before continuing');
+    }
+    if (!gitOk) {
+      error('Please set up git repository before continuing');
+    }
+    console.log(`\n${chalk.blue('*')} Run ${chalk.cyan('npx multiclaude init')} again after resolving these issues.`);
+    process.exit(1);
+  }
+
+  console.log(`\n${chalk.bold.green('System ready! Initializing multiclaude...')}`);
+
   const cwd = process.cwd();
   const multiclaudeDir = join(cwd, '.multiclaude');
   const personasDir = join(multiclaudeDir, 'personas');
@@ -149,20 +328,19 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
     // Check if .multiclaude already exists
     if (existsSync(multiclaudeDir)) {
       if (!options.overwrite) {
-        console.log(chalk.red('❌ .multiclaude directory already exists'));
-        console.log(chalk.blue('ℹ️  Use --overwrite flag to overwrite existing directory'));
-        console.log(chalk.gray('   Example: npx multiclaude init --overwrite'));
+        console.log(chalk.red('- .multiclaude directory already exists'));
+        console.log(chalk.blue('* Use --overwrite flag to overwrite existing directory'));
+        console.log(chalk.gray('  Example: npx multiclaude init --overwrite'));
         process.exit(1);
       }
-      console.log(chalk.yellow('⚠️  .multiclaude directory exists, overwriting...'));
+      console.log(chalk.yellow('! .multiclaude directory exists, overwriting...'));
     }
 
     // Create directories
-    console.log(chalk.blue('📁 Creating .multiclaude/personas/ directory...'));
+    console.log(chalk.blue('Creating .multiclaude/personas/ directory...'));
     mkdirSync(personasDir, { recursive: true });
 
     // Copy persona files
-    console.log(chalk.blue('📋 Copying agent personas...'));
     const personaFiles = [
       'agent-developer.md',
       'agent-code-reviewer.md',
@@ -179,26 +357,22 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
       if (existsSync(sourcePath)) {
         copyFileSync(sourcePath, destPath);
         copiedCount++;
-        if (options.verbose) {
-          console.log(chalk.green(`  ✓ Copied ${file}`));
-        }
+        console.log(chalk.green(`+ .multiclaude/personas/${file}`));
       } else {
-        console.log(chalk.yellow(`  ⚠️  Skipped ${file} (not found)`));
+        console.log(chalk.yellow(`! Skipped ${file} (not found)`));
       }
     }
 
-    console.log(chalk.green(`✓ Copied ${copiedCount} persona files`));
-
     // Generate CLAUDE.staged.md
-    console.log(chalk.blue('📝 Generating CLAUDE.staged.md...'));
+    console.log(chalk.blue('Generating CLAUDE.staged.md...'));
     writeFileSync(claudeStagedPath, CLAUDE_STAGED_TEMPLATE);
-    console.log(chalk.green('✓ Created CLAUDE.staged.md'));
+    console.log(chalk.green('+ Created CLAUDE.staged.md'));
 
     // Create/update Makefile if needed
     if (!existsSync(makefilePath)) {
-      console.log(chalk.blue('🔧 Creating Makefile with setup/teardown targets...'));
+      console.log(chalk.blue('Creating Makefile with setup/teardown targets...'));
       writeFileSync(makefilePath, MAKEFILE_TEMPLATE);
-      console.log(chalk.green('✓ Created Makefile'));
+      console.log(chalk.green('+ Created Makefile'));
     } else {
       // Check if Makefile has required targets
       const makefileContent = readFileSync(makefilePath, 'utf-8');
@@ -206,21 +380,43 @@ export async function initProject(options: InitOptions = {}): Promise<void> {
       const hasTeardown = makefileContent.includes('teardown:');
 
       if (!hasSetup || !hasTeardown) {
-        console.log(chalk.yellow('⚠️  Makefile exists but missing setup/teardown targets'));
-        console.log(chalk.blue('ℹ️  Please add these targets for launch compatibility'));
+        console.log(chalk.yellow('! Makefile exists but missing setup/teardown targets'));
+        console.log(chalk.blue('* Please add these targets for launch compatibility'));
       }
     }
 
     // Success message
-    console.log(chalk.green('\n🎉 multiclaude init completed successfully!'));
-    console.log(chalk.blue('\n📋 Next steps:'));
+    console.log(chalk.green('\nMulticlaude init completed successfully!'));
+    
+    console.log(chalk.blue('\nNext steps:'));
     console.log(chalk.white('  1. Review CLAUDE.staged.md'));
     console.log(chalk.white('  2. Copy/merge CLAUDE.staged.md into CLAUDE.md'));
     console.log(chalk.white('  3. Customize project context in CLAUDE.md'));
-    console.log(chalk.white('  4. Choose an agent persona for your work'));
-    console.log(chalk.gray('\n💡 Agent personas are ready in .multiclaude/personas/'));
+    console.log(chalk.white('  4. Customize project and toolchain context in .multiclaude/personas/*.md'));
+    
+    let stepNumber = 5;
+    if (!systemCheck.inTmuxSession) {
+      console.log(chalk.white(`  ${stepNumber}. Attach to a tmux session or launch a new one`));
+      console.log(chalk.gray('     tmux new-session or tmux attach'));
+      stepNumber++;
+    }
+    
+    console.log(chalk.white(`  ${stepNumber}. Launch Claude Code CLI and adopt the manager persona`));
+    console.log(chalk.gray('\nAgent personas are ready in .multiclaude/personas/'));
+    
+    console.log(chalk.blue('\nCustomization tips:'));
+    console.log(chalk.white('  - Replace [CUSTOMIZE THIS SECTION FOR YOUR PROJECT] placeholders'));
+    console.log(chalk.white('  - Update build commands (make check, make test) for your toolchain'));
+    console.log(chalk.white('  - Add project-specific file patterns and directories'));
+    console.log(chalk.white('  - Include relevant tech stack and framework information'));
+    
+    console.log(chalk.blue('\nUsage:'));
+    console.log(chalk.white('Launch Claude Code CLI and instruct it to adopt the manager persona,'));
+    console.log(chalk.white('then point it at your next project or feature spec to get started,'));
+    console.log(chalk.white('or just explain what you want to build.'));
+    console.log(chalk.gray('  claude \'adopt the manager persona and prepare plans for the features in rambling-feature-thoughts.md\''));
   } catch (error) {
-    console.error(chalk.red('❌ Error during initialization:'));
+    console.error(chalk.red('- Error during initialization:'));
     if (error instanceof Error) {
       console.error(chalk.red(error.message));
     } else {

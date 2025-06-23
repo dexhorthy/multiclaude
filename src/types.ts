@@ -13,6 +13,7 @@ export interface LauncherConfig {
 export interface LaunchOptions {
   verbose?: boolean;
   debug?: boolean;
+  humanlayer?: boolean;
 }
 
 export interface CleanupOptions {
