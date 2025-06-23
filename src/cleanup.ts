@@ -283,6 +283,231 @@ export class Cleanup {
     console.log();
   }
 
+  private async removeMulticlaudeDirectory(): Promise<void> {
+    const multiclaudeDir = path.join(process.cwd(), '.multiclaude');
+    
+    if (fs.existsSync(multiclaudeDir)) {
+      try {
+        this.log(`Removing .multiclaude directory: ${multiclaudeDir}`);
+        fs.rmSync(multiclaudeDir, { recursive: true, force: true });
+      } catch (error) {
+        this.warn(`Failed to remove .multiclaude directory: ${error instanceof Error ? error.message : String(error)}`);
+      }
+    } else {
+      this.info('.multiclaude directory not found');
+    }
+  }
+
+  private async removeStagedFiles(): Promise<void> {
+    try {
+      this.log('Removing staged files...');
+      
+      // Check if we're in a git repository
+      const gitCheck = await this.runCommand('git', ['rev-parse', '--git-dir']);
+      if (gitCheck.code !== 0) {
+        this.info('Not a git repository, skipping staged file cleanup');
+        return;
+      }
+
+      // Reset staged files
+      const resetResult = await this.runCommand('git', ['reset', 'HEAD']);
+      if (resetResult.code === 0) {
+        this.log('Successfully unstaged all files');
+      } else {
+        this.warn('Failed to unstage files');
+      }
+
+      // Remove untracked files that match common patterns
+      const patterns = ['*.staged.md', 'CLAUDE.staged.md'];
+      for (const pattern of patterns) {
+        try {
+          const findResult = await this.runCommand('find', ['.', '-name', pattern, '-type', 'f']);
+          if (findResult.code === 0 && findResult.stdout.trim()) {
+            const files = findResult.stdout.trim().split('\n');
+            for (const file of files) {
+              try {
+                fs.unlinkSync(file);
+                this.log(`Removed staged file: ${file}`);
+              } catch {
+                this.warn(`Failed to remove staged file: ${file}`);
+              }
+            }
+          }
+        } catch {
+          // Ignore errors from find command
+        }
+      }
+    } catch (error) {
+      this.warn(`Failed to clean staged files: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async listWorktreesToDelete(): Promise<{ path: string; branch: string }[]> {
+    try {
+      // List all worktrees
+      const worktreesResult = await this.runCommand('git', ['worktree', 'list', '--porcelain']);
+      if (worktreesResult.code !== 0) {
+        return [];
+      }
+
+      const worktrees = worktreesResult.stdout.trim().split('\n\n');
+      const agentWorktrees = worktrees.filter(worktree => 
+        worktree.includes(`${this.config.repoName}_`) || 
+        worktree.includes('integration-') ||
+        worktree.includes('agentcontrolplane_')
+      );
+
+      const toDelete: { path: string; branch: string }[] = [];
+      for (const worktree of agentWorktrees) {
+        const worktreePath = worktree.split('\n')[0].replace('worktree ', '');
+        const branchMatch = worktree.match(/branch refs\/heads\/(.+)/);
+        const branchName = branchMatch ? branchMatch[1] : path.basename(worktreePath);
+        
+        if (worktreePath && worktreePath !== process.cwd()) {
+          toDelete.push({ path: worktreePath, branch: branchName });
+        }
+      }
+
+      return toDelete;
+    } catch (error) {
+      this.warn(`Failed to list worktrees: ${error instanceof Error ? error.message : String(error)}`);
+      return [];
+    }
+  }
+
+  private async listTmuxWindowsToKill(): Promise<{ session: string; window: string }[]> {
+    try {
+      // List all sessions
+      const sessionsResult = await this.runCommand('tmux', ['list-sessions', '-F', '#{session_name}']);
+      if (sessionsResult.code !== 0) {
+        return [];
+      }
+
+      const sessions = sessionsResult.stdout.trim().split('\n').filter(s => s.length > 0);
+      const toKill: { session: string; window: string }[] = [];
+      
+      for (const session of sessions) {
+        const windowsResult = await this.runCommand('tmux', [
+          'list-windows', '-t', session, '-F', '#{window_name}'
+        ]);
+        
+        if (windowsResult.code === 0) {
+          const windows = windowsResult.stdout.trim().split('\n').filter(w => w.length > 0);
+          const agentWindows = windows.filter(window => 
+            window.includes('integration-') || 
+            window.includes('agent-') ||
+            window.match(/^[a-f0-9-]{8,}$/) // UUID-like patterns
+          );
+          
+          for (const window of agentWindows) {
+            toKill.push({ session, window });
+          }
+        }
+      }
+
+      return toKill;
+    } catch (error) {
+      this.warn(`Failed to list tmux windows: ${error instanceof Error ? error.message : String(error)}`);
+      return [];
+    }
+  }
+
+  private async promptForConfirmation(message: string): Promise<boolean> {
+    return new Promise((resolve) => {
+      const readline = require('readline');
+      const rl = readline.createInterface({
+        input: process.stdin,
+        output: process.stdout
+      });
+
+      rl.question(`${message} (y/N): `, (answer: string) => {
+        rl.close();
+        resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes');
+      });
+    });
+  }
+
+  private async cleanAllWorktrees(): Promise<void> {
+    try {
+      const worktreesToDelete = await this.listWorktreesToDelete();
+      
+      if (worktreesToDelete.length === 0) {
+        this.info('No agent worktrees found to delete');
+        return;
+      }
+
+      console.log('\n📁 The following worktrees will be deleted:');
+      for (const worktree of worktreesToDelete) {
+        console.log(`  - ${worktree.path} (branch: ${worktree.branch})`);
+      }
+
+      const confirmed = await this.promptForConfirmation('\nDelete these worktrees?');
+      if (!confirmed) {
+        this.info('Skipping worktree cleanup');
+        return;
+      }
+
+      this.log('Cleaning agent worktrees...');
+      
+      for (const worktree of worktreesToDelete) {
+        await this.removeWorktree(worktree.branch);
+        await this.deleteBranch(worktree.branch);
+      }
+
+      await this.pruneWorktrees();
+    } catch (error) {
+      this.warn(`Failed to clean worktrees: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  private async killAllAgentTmuxWindows(): Promise<void> {
+    try {
+      const windowsToKill = await this.listTmuxWindowsToKill();
+      
+      if (windowsToKill.length === 0) {
+        this.info('No agent tmux windows found to kill');
+        return;
+      }
+
+      console.log('\n🖥️  The following tmux windows will be killed:');
+      for (const window of windowsToKill) {
+        console.log(`  - ${window.session}:${window.window}`);
+      }
+
+      const confirmed = await this.promptForConfirmation('\nKill these tmux windows?');
+      if (!confirmed) {
+        this.info('Skipping tmux window cleanup');
+        return;
+      }
+
+      this.log('Killing agent tmux windows...');
+      
+      for (const window of windowsToKill) {
+        await this.killTmuxWindow(window.window);
+      }
+    } catch (error) {
+      this.warn(`Failed to kill tmux windows: ${error instanceof Error ? error.message : String(error)}`);
+    }
+  }
+
+  async reset(options: CleanupOptions = {}): Promise<void> {
+    try {
+      this.log('🧹 Starting full reset and cleanup...');
+
+      await this.removeMulticlaudeDirectory();
+      await this.removeStagedFiles();
+      await this.cleanAllWorktrees();
+      await this.killAllAgentTmuxWindows();
+
+      this.log('✅ Reset completed successfully!');
+      
+      await this.showRemainingResources();
+    } catch (error) {
+      this.error(`Reset failed: ${error instanceof Error ? error.message : String(error)}`);
+      process.exit(1);
+    }
+  }
+
   async cleanup(branchName: string, options: CleanupOptions = {}): Promise<void> {
     try {
       this.log(`Cleaning up worker: ${branchName} (branch: ${branchName})`);
