@@ -1,10 +1,10 @@
-# promptx
+# multiclaude
 
 A CLI tool that initializes AI agent personas into your projects for consistent, role-based development workflows.
 
-## What is promptx?
+## What is multiclaude?
 
-promptx is a simple npm package that helps teams adopt specialized AI agent personas for different development tasks. Instead of generic AI assistance, you get focused agents with specific workflows, rules, and expertise areas.
+multiclaude is a simple npm package that helps teams adopt specialized AI agent personas for different development tasks. Instead of generic AI assistance, you get focused agents with specific workflows, rules, and expertise areas.
 
 ## Quick Start
 
@@ -32,7 +32,7 @@ your-project/
 └── ... (your existing project files)
 ```
 
-the manager agent will be instructed to use
+the manager agent will be instructed to use the following to manage the coding agents it launches.
 
 ```
 npx multiclaude launch branch-name plan-file.md
@@ -130,7 +130,7 @@ This project itself uses the agent personas! Check out:
 ### Project Structure
 
 ```
-promptx/
+multiclaude/
 ├── src/
 │   ├── cli.ts          # Main CLI entry point
 │   └── init.ts         # Initialization logic
