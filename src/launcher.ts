@@ -250,7 +250,7 @@ export class Launcher {
     // Environment setup can be customized via Makefile setup target
 
     this.log(`Starting Claude Code in worktree: ${info.worktreeDir}`);
-    await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "$(cat prompt.md)"', 'C-m']);
+    await this.runCommand('tmux', ['send-keys', '-t', target, 'claude "Please read prompt.md and get to work"', 'C-m']);
 
     // Wait and handle Claude trust prompt
     await new Promise((resolve) => setTimeout(resolve, 5000));
@@ -267,12 +267,8 @@ export class Launcher {
   private async launchHumanLayer(info: WorktreeInfo): Promise<void> {
     this.log(`Starting HumanLayer in worktree: ${info.worktreeDir}`);
     
-    // Read the prompt file to pass as the query to HumanLayer
-    const promptPath = path.join(info.worktreeDir, 'prompt.md');
-    const prompt = fs.readFileSync(promptPath, 'utf-8');
-    
-    // Launch HumanLayer with the working directory set to the worktree
-    const result = await this.runCommand('npx', ['humanlayer', 'launch', '--working-dir', info.worktreeDir, prompt], {
+    // Launch HumanLayer with a simple instruction to read the prompt file
+    const result = await this.runCommand('npx', ['humanlayer', 'launch', '--working-dir', info.worktreeDir, 'Please read prompt.md and get to work'], {
       cwd: info.worktreeDir,
     });
 
