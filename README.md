@@ -2,7 +2,8 @@
 
 A CLI tool that initializes AI agent personas into your projects for consistent, role-based development workflows.
 
-## What is multiclaude
+
+## What is multiclaude?
 
 multiclaude is a simple npm package that helps teams adopt specialized AI agent personas for different development tasks. Instead of generic AI assistance, you get focused agents with specific workflows, rules, and expertise areas.
 
@@ -32,7 +33,7 @@ your-project/
 └── ... (your existing project files)
 ```
 
-the manager agent will be instructed to use
+the manager agent will be instructed to use the following to manage the coding agents it launches.
 
 ```
 npx multiclaude launch branch-name plan-file.md
