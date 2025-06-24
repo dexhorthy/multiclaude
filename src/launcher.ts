@@ -82,6 +82,7 @@ export class Launcher {
       branchName,
       worktreeDir: path.join(this.config.worktreeDir, `${this.config.repoName}_${branchName}`),
       planFile,
+      planFileName: path.basename(planFile),
       tmuxWindow: branchName,
     };
   }
@@ -125,9 +126,6 @@ export class Launcher {
       this.warn('.claude directory not found in current working directory');
     }
 
-    // Copy plan file
-    fs.copyFileSync(info.planFile, path.join(info.worktreeDir, path.basename(info.planFile)));
-
     this.log(`Worktree created: ${info.worktreeDir}`);
   }
 
@@ -149,15 +147,18 @@ export class Launcher {
   }
 
   private createPromptFile(info: WorktreeInfo): void {
-    const promptPath = path.join(info.worktreeDir, 'prompt.md');
+    // Copy the plan file with its original name (it won't be committed to git)
+    const planPath = path.join(info.worktreeDir, info.planFileName);
 
     if (info.planFile.includes('agent-integration-tester.md')) {
-      // Copy the integration tester persona directly as the prompt
-      fs.copyFileSync(path.join('hack', 'agent-integration-tester.md'), promptPath);
+      // Copy the integration tester persona directly
+      fs.copyFileSync(path.join('hack', 'agent-integration-tester.md'), planPath);
     } else {
-      // Copy the plan file as the prompt for regular agents
-      fs.copyFileSync(info.planFile, promptPath);
+      // Copy the plan file with its original name
+      fs.copyFileSync(info.planFile, planPath);
     }
+
+    this.log(`Plan file copied as: ${info.planFileName}`);
   }
 
   private async getNextWindowNumber(sessionName?: string): Promise<number> {
@@ -258,7 +259,7 @@ export class Launcher {
       'send-keys',
       '-t',
       target,
-      'claude "Please read prompt.md and get to work"',
+      `claude "Please execute ${info.planFileName}"`,
       'C-m',
     ]);
 
@@ -284,7 +285,7 @@ export class Launcher {
     args.push('--working-dir', info.worktreeDir);
 
     // Add the query/prompt
-    args.push('Please read prompt.md and get to work');
+    args.push(`Please execute ${info.planFileName}`);
 
     this.log(`Running command: npx ${args.join(' ')}`);
 

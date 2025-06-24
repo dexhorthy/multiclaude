@@ -15,6 +15,13 @@ export interface LaunchOptions {
   verbose?: boolean;
   debug?: boolean;
   humanlayer?: boolean;
+  model?: string;
+  maxTurns?: number;
+  systemPrompt?: string;
+  appendSystemPrompt?: string;
+  customInstructions?: string;
+  allowedTools?: string[];
+  disallowedTools?: string[];
 }
 
 export interface CleanupOptions {
@@ -26,5 +33,6 @@ export interface WorktreeInfo {
   branchName: string;
   worktreeDir: string;
   planFile: string;
+  planFileName: string;
   tmuxWindow: string;
 }
