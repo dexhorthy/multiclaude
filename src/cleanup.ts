@@ -1,9 +1,9 @@
-import { spawn } from 'node:child_process';
-import * as fs from 'node:fs';
-import * as path from 'node:path';
-import chalk from 'chalk';
-import { loadConfig } from './config.js';
-import type { CleanupOptions, LauncherConfig } from './types.js';
+import { spawn } from "node:child_process";
+import * as fs from "node:fs";
+import * as path from "node:path";
+import chalk from "chalk";
+import { loadConfig } from "./config.js";
+import type { CleanupOptions, LauncherConfig } from "./types.js";
 
 export class Cleanup {
   private config: LauncherConfig;
@@ -13,22 +13,22 @@ export class Cleanup {
   }
 
   private log(message: string): void {
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     console.log(`${chalk.green(`[${timestamp}]`)} ${message}`);
   }
 
   private error(message: string): void {
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     console.error(`${chalk.red(`[${timestamp}] ERROR:`)} ${message}`);
   }
 
   private warn(message: string): void {
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     console.warn(`${chalk.yellow(`[${timestamp}] WARN:`)} ${message}`);
   }
 
   private info(message: string): void {
-    const timestamp = new Date().toISOString().slice(0, 19).replace('T', ' ');
+    const timestamp = new Date().toISOString().slice(0, 19).replace("T", " ");
     console.log(`${chalk.blue(`[${timestamp}] INFO:`)} ${message}`);
   }
 
@@ -39,26 +39,26 @@ export class Cleanup {
   ): Promise<{ stdout: string; stderr: string; code: number }> {
     return new Promise((resolve, reject) => {
       const child = spawn(command, args, {
-        stdio: ['inherit', 'pipe', 'pipe'],
+        stdio: ["inherit", "pipe", "pipe"],
         cwd: options.cwd || process.cwd(),
       });
 
-      let stdout = '';
-      let stderr = '';
+      let stdout = "";
+      let stderr = "";
 
-      child.stdout?.on('data', (data) => {
+      child.stdout?.on("data", (data) => {
         stdout += data.toString();
       });
 
-      child.stderr?.on('data', (data) => {
+      child.stderr?.on("data", (data) => {
         stderr += data.toString();
       });
 
-      child.on('close', (code) => {
+      child.on("close", (code) => {
         resolve({ stdout, stderr, code: code || 0 });
       });
 
-      child.on('error', (error) => {
+      child.on("error", (error) => {
         reject(error);
       });
     });
@@ -69,10 +69,10 @@ export class Cleanup {
   ): Promise<{ session: string; window: string } | null> {
     try {
       // List all sessions
-      const sessionsResult = await this.runCommand('tmux', [
-        'list-sessions',
-        '-F',
-        '#{session_name}',
+      const sessionsResult = await this.runCommand("tmux", [
+        "list-sessions",
+        "-F",
+        "#{session_name}",
       ]);
 
       if (sessionsResult.code !== 0) {
@@ -81,19 +81,22 @@ export class Cleanup {
 
       const sessions = sessionsResult.stdout
         .trim()
-        .split('\n')
+        .split("\n")
         .filter((s) => s.length > 0);
 
       for (const session of sessions) {
-        const windowsResult = await this.runCommand('tmux', [
-          'list-windows',
-          '-t',
+        const windowsResult = await this.runCommand("tmux", [
+          "list-windows",
+          "-t",
           session,
-          '-F',
-          '#{window_name}',
+          "-F",
+          "#{window_name}",
         ]);
 
-        if (windowsResult.code === 0 && windowsResult.stdout.includes(windowName)) {
+        if (
+          windowsResult.code === 0 &&
+          windowsResult.stdout.includes(windowName)
+        ) {
           return { session, window: windowName };
         }
       }
@@ -110,10 +113,12 @@ export class Cleanup {
       const windowLocation = await this.findWindowInAllSessions(windowName);
 
       if (windowLocation) {
-        this.log(`Killing tmux window: ${windowLocation.session}:${windowLocation.window}`);
-        await this.runCommand('tmux', [
-          'kill-window',
-          '-t',
+        this.log(
+          `Killing tmux window: ${windowLocation.session}:${windowLocation.window}`,
+        );
+        await this.runCommand("tmux", [
+          "kill-window",
+          "-t",
           `${windowLocation.session}:${windowLocation.window}`,
         ]);
       } else {
@@ -127,7 +132,10 @@ export class Cleanup {
   }
 
   private async removeWorktree(branchName: string): Promise<void> {
-    const worktreeDir = path.join(this.config.worktreeDir, `${this.config.repoName}_${branchName}`);
+    const worktreeDir = path.join(
+      this.config.worktreeDir,
+      `${this.config.repoName}_${branchName}`,
+    );
 
     if (!fs.existsSync(worktreeDir)) {
       this.info(`Worktree not found: ${worktreeDir}`);
@@ -138,9 +146,13 @@ export class Cleanup {
       this.log(`Removing worktree: ${worktreeDir}`);
 
       // Fix permissions before removing worktree
-      this.log('Fixing permissions for worktree removal');
+      this.log("Fixing permissions for worktree removal");
       try {
-        const chmodResult = await this.runCommand('chmod', ['-R', '755', worktreeDir]);
+        const chmodResult = await this.runCommand("chmod", [
+          "-R",
+          "755",
+          worktreeDir,
+        ]);
         if (chmodResult.code !== 0) {
           this.warn(`Failed to fix permissions for ${worktreeDir}`);
         }
@@ -149,15 +161,17 @@ export class Cleanup {
       }
 
       // Remove worktree
-      const removeResult = await this.runCommand('git', [
-        'worktree',
-        'remove',
-        '--force',
+      const removeResult = await this.runCommand("git", [
+        "worktree",
+        "remove",
+        "--force",
         worktreeDir,
       ]);
 
       if (removeResult.code !== 0) {
-        this.warn('Failed to remove worktree with git, removing directory manually');
+        this.warn(
+          "Failed to remove worktree with git, removing directory manually",
+        );
         fs.rmSync(worktreeDir, { recursive: true, force: true });
       }
     } catch (error) {
@@ -168,7 +182,9 @@ export class Cleanup {
       try {
         fs.rmSync(worktreeDir, { recursive: true, force: true });
       } catch {
-        this.error(`Failed to manually remove worktree directory: ${worktreeDir}`);
+        this.error(
+          `Failed to manually remove worktree directory: ${worktreeDir}`,
+        );
       }
     }
   }
@@ -176,16 +192,20 @@ export class Cleanup {
   private async deleteBranch(branchName: string): Promise<void> {
     try {
       // Check if branch exists
-      const branchExists = await this.runCommand('git', [
-        'show-ref',
-        '--verify',
-        '--quiet',
+      const branchExists = await this.runCommand("git", [
+        "show-ref",
+        "--verify",
+        "--quiet",
         `refs/heads/${branchName}`,
       ]);
 
       if (branchExists.code === 0) {
         this.log(`Deleting branch: ${branchName}`);
-        const deleteResult = await this.runCommand('git', ['branch', '-D', branchName]);
+        const deleteResult = await this.runCommand("git", [
+          "branch",
+          "-D",
+          branchName,
+        ]);
 
         if (deleteResult.code !== 0) {
           this.warn(`Failed to delete branch: ${branchName}`);
@@ -202,8 +222,8 @@ export class Cleanup {
 
   private async pruneWorktrees(): Promise<void> {
     try {
-      this.log('Pruning git worktree list...');
-      await this.runCommand('git', ['worktree', 'prune']);
+      this.log("Pruning git worktree list...");
+      await this.runCommand("git", ["worktree", "prune"]);
     } catch (error) {
       this.warn(
         `Failed to prune worktrees: ${error instanceof Error ? error.message : String(error)}`,
@@ -213,21 +233,21 @@ export class Cleanup {
 
   private async showRemainingResources(): Promise<void> {
     console.log();
-    this.info('=== REMAINING RESOURCES ===');
+    this.info("=== REMAINING RESOURCES ===");
 
     console.log();
-    this.info('📺 Tmux sessions and windows:');
+    this.info("📺 Tmux sessions and windows:");
 
     try {
-      const sessionsResult = await this.runCommand('tmux', ['list-sessions']);
+      const sessionsResult = await this.runCommand("tmux", ["list-sessions"]);
 
       if (sessionsResult.code === 0 && sessionsResult.stdout.trim()) {
         console.log(sessionsResult.stdout.trim());
 
         // Show windows in our session if it exists
-        const sessionExists = await this.runCommand('tmux', [
-          'has-session',
-          '-t',
+        const sessionExists = await this.runCommand("tmux", [
+          "has-session",
+          "-t",
           this.config.tmuxSession,
         ]);
 
@@ -235,95 +255,110 @@ export class Cleanup {
           console.log();
           this.info(`Windows in ${this.config.tmuxSession} session:`);
 
-          const windowsResult = await this.runCommand('tmux', [
-            'list-windows',
-            '-t',
+          const windowsResult = await this.runCommand("tmux", [
+            "list-windows",
+            "-t",
             this.config.tmuxSession,
-            '-F',
-            '  #{window_index}: #{window_name}',
+            "-F",
+            "  #{window_index}: #{window_name}",
           ]);
 
           if (windowsResult.code === 0 && windowsResult.stdout.trim()) {
             console.log(windowsResult.stdout.trim());
           } else {
-            console.log('  No windows found');
+            console.log("  No windows found");
           }
         }
       } else {
-        console.log('No tmux sessions found');
+        console.log("No tmux sessions found");
       }
     } catch {
-      console.log('No tmux sessions found');
+      console.log("No tmux sessions found");
     }
 
     console.log();
-    this.info('🌲 Git worktrees:');
+    this.info("🌲 Git worktrees:");
 
     try {
-      const worktreesResult = await this.runCommand('git', ['worktree', 'list']);
+      const worktreesResult = await this.runCommand("git", [
+        "worktree",
+        "list",
+      ]);
 
       if (worktreesResult.code === 0 && worktreesResult.stdout.trim()) {
         const filteredWorktrees = worktreesResult.stdout
-          .split('\n')
-          .filter((line) => line.includes('agentcontrolplane_') || line.includes('integration-'))
-          .join('\n');
+          .split("\n")
+          .filter(
+            (line) =>
+              line.includes("agentcontrolplane_") ||
+              line.includes("integration-"),
+          )
+          .join("\n");
 
         if (filteredWorktrees.trim()) {
           console.log(filteredWorktrees);
         } else {
-          console.log('No relevant worktrees found');
+          console.log("No relevant worktrees found");
         }
       } else {
-        console.log('No relevant worktrees found');
+        console.log("No relevant worktrees found");
       }
     } catch {
-      console.log('No relevant worktrees found');
+      console.log("No relevant worktrees found");
     }
 
     console.log();
   }
 
   private async removeMulticlaudeDirectory(): Promise<void> {
-    const multiclaudeDir = path.join(process.cwd(), '.multiclaude');
-    
+    const multiclaudeDir = path.join(process.cwd(), ".multiclaude");
+
     if (fs.existsSync(multiclaudeDir)) {
       try {
         this.log(`Removing .multiclaude directory: ${multiclaudeDir}`);
         fs.rmSync(multiclaudeDir, { recursive: true, force: true });
       } catch (error) {
-        this.warn(`Failed to remove .multiclaude directory: ${error instanceof Error ? error.message : String(error)}`);
+        this.warn(
+          `Failed to remove .multiclaude directory: ${error instanceof Error ? error.message : String(error)}`,
+        );
       }
     } else {
-      this.info('.multiclaude directory not found');
+      this.info(".multiclaude directory not found");
     }
   }
 
   private async removeStagedFiles(): Promise<void> {
     try {
-      this.log('Removing staged files...');
-      
+      this.log("Removing staged files...");
+
       // Check if we're in a git repository
-      const gitCheck = await this.runCommand('git', ['rev-parse', '--git-dir']);
+      const gitCheck = await this.runCommand("git", ["rev-parse", "--git-dir"]);
       if (gitCheck.code !== 0) {
-        this.info('Not a git repository, skipping staged file cleanup');
+        this.info("Not a git repository, skipping staged file cleanup");
         return;
       }
 
       // Reset staged files
-      const resetResult = await this.runCommand('git', ['reset', 'HEAD']);
+      const resetResult = await this.runCommand("git", ["reset", "HEAD"]);
       if (resetResult.code === 0) {
-        this.log('Successfully unstaged all files');
+        this.log("Successfully unstaged all files");
       } else {
-        this.warn('Failed to unstage files');
+        this.warn("Failed to unstage files");
       }
 
       // Remove untracked files that match common patterns
-      const patterns = ['*.staged.md', 'CLAUDE.staged.md'];
+      const patterns = ["*.staged.md", "CLAUDE.staged.md"];
       for (const pattern of patterns) {
         try {
-          const findResult = await this.runCommand('find', ['.', '-name', pattern, '-type', 'f']);
+          const findResult = await this.runCommand("find", [
+            ".",
+            "-name",
+            pattern,
+            "-type",
+            "f",
+          ]);
           if (findResult.code === 0 && findResult.stdout.trim()) {
-            const files = findResult.stdout.trim().split('\n');
+            const files = findResult.stdout.trim().split("\n");
             for (const file of files) {
               try {
                 fs.unlinkSync(file);
@@ -338,31 +373,42 @@ export class Cleanup {
         }
       }
     } catch (error) {
-      this.warn(`Failed to clean staged files: ${error instanceof Error ? error.message : String(error)}`);
+      this.warn(
+        `Failed to clean staged files: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
-  private async listWorktreesToDelete(): Promise<{ path: string; branch: string }[]> {
+  private async listWorktreesToDelete(): Promise<
+    { path: string; branch: string }[]
+  > {
     try {
       // List all worktrees
-      const worktreesResult = await this.runCommand('git', ['worktree', 'list', '--porcelain']);
+      const worktreesResult = await this.runCommand("git", [
+        "worktree",
+        "list",
+        "--porcelain",
+      ]);
       if (worktreesResult.code !== 0) {
         return [];
       }
 
-      const worktrees = worktreesResult.stdout.trim().split('\n\n');
-      const agentWorktrees = worktrees.filter(worktree => 
-        worktree.includes(`${this.config.repoName}_`) || 
-        worktree.includes('integration-') ||
-        worktree.includes('agentcontrolplane_')
+      const worktrees = worktreesResult.stdout.trim().split("\n\n");
+      const agentWorktrees = worktrees.filter(
+        (worktree) =>
+          worktree.includes(`${this.config.repoName}_`) ||
+          worktree.includes("integration-") ||
+          worktree.includes("agentcontrolplane_"),
       );
 
       const toDelete: { path: string; branch: string }[] = [];
       for (const worktree of agentWorktrees) {
-        const worktreePath = worktree.split('\n')[0].replace('worktree ', '');
+        const worktreePath = worktree.split("\n")[0].replace("worktree ", "");
         const branchMatch = worktree.match(/branch refs\/heads\/(.+)/);
-        const branchName = branchMatch ? branchMatch[1] : path.basename(worktreePath);
-        
+        const branchName = branchMatch
+          ? branchMatch[1]
+          : path.basename(worktreePath);
+
         if (worktreePath && worktreePath !== process.cwd()) {
           toDelete.push({ path: worktreePath, branch: branchName });
         }
@@ -370,35 +416,54 @@ export class Cleanup {
 
       return toDelete;
     } catch (error) {
-      this.warn(`Failed to list worktrees: ${error instanceof Error ? error.message : String(error)}`);
+      this.warn(
+        `Failed to list worktrees: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return [];
     }
   }
 
-  private async listTmuxWindowsToKill(): Promise<{ session: string; window: string }[]> {
+  private async listTmuxWindowsToKill(): Promise<
+    { session: string; window: string }[]
+  > {
     try {
       // List all sessions
-      const sessionsResult = await this.runCommand('tmux', ['list-sessions', '-F', '#{session_name}']);
+      const sessionsResult = await this.runCommand("tmux", [
+        "list-sessions",
+        "-F",
+        "#{session_name}",
+      ]);
       if (sessionsResult.code !== 0) {
         return [];
       }
 
-      const sessions = sessionsResult.stdout.trim().split('\n').filter(s => s.length > 0);
+      const sessions = sessionsResult.stdout
+        .trim()
+        .split("\n")
+        .filter((s) => s.length > 0);
       const toKill: { session: string; window: string }[] = [];
-      
+
       for (const session of sessions) {
-        const windowsResult = await this.runCommand('tmux', [
-          'list-windows', '-t', session, '-F', '#{window_name}'
+        const windowsResult = await this.runCommand("tmux", [
+          "list-windows",
+          "-t",
+          session,
+          "-F",
+          "#{window_name}",
         ]);
-        
+
         if (windowsResult.code === 0) {
-          const windows = windowsResult.stdout.trim().split('\n').filter(w => w.length > 0);
-          const agentWindows = windows.filter(window => 
-            window.includes('integration-') || 
-            window.includes('agent-') ||
-            window.match(/^[a-f0-9-]{8,}$/) // UUID-like patterns
+          const windows = windowsResult.stdout
+            .trim()
+            .split("\n")
+            .filter((w) => w.length > 0);
+          const agentWindows = windows.filter(
+            (window) =>
+              window.includes("integration-") ||
+              window.includes("agent-") ||
+              window.match(/^[a-f0-9-]{8,}$/), // UUID-like patterns
           );
-          
+
           for (const window of agentWindows) {
             toKill.push({ session, window });
           }
@@ -407,22 +472,24 @@ export class Cleanup {
 
       return toKill;
     } catch (error) {
-      this.warn(`Failed to list tmux windows: ${error instanceof Error ? error.message : String(error)}`);
+      this.warn(
+        `Failed to list tmux windows: ${error instanceof Error ? error.message : String(error)}`,
+      );
       return [];
     }
   }
 
   private async promptForConfirmation(message: string): Promise<boolean> {
     return new Promise((resolve) => {
-      const readline = require('readline');
+      const readline = require("node:readline");
       const rl = readline.createInterface({
         input: process.stdin,
-        output: process.stdout
+        output: process.stdout,
       });
 
       rl.question(`${message} (y/N): `, (answer: string) => {
         rl.close();
-        resolve(answer.toLowerCase() === 'y' || answer.toLowerCase() === 'yes');
+        resolve(answer.toLowerCase() === "y" || answer.toLowerCase() === "yes");
       });
     });
   }
@@ -430,25 +497,27 @@ export class Cleanup {
   private async cleanAllWorktrees(): Promise<void> {
     try {
       const worktreesToDelete = await this.listWorktreesToDelete();
-      
+
       if (worktreesToDelete.length === 0) {
-        this.info('No agent worktrees found to delete');
+        this.info("No agent worktrees found to delete");
         return;
       }
 
-      console.log('\n📁 The following worktrees will be deleted:');
+      console.log("\n📁 The following worktrees will be deleted:");
       for (const worktree of worktreesToDelete) {
         console.log(`  - ${worktree.path} (branch: ${worktree.branch})`);
       }
 
-      const confirmed = await this.promptForConfirmation('\nDelete these worktrees?');
+      const confirmed = await this.promptForConfirmation(
+        "\nDelete these worktrees?",
+      );
       if (!confirmed) {
-        this.info('Skipping worktree cleanup');
+        this.info("Skipping worktree cleanup");
         return;
       }
 
-      this.log('Cleaning agent worktrees...');
-      
+      this.log("Cleaning agent worktrees...");
+
       for (const worktree of worktreesToDelete) {
         await this.removeWorktree(worktree.branch);
         await this.deleteBranch(worktree.branch);
@@ -456,59 +525,70 @@ export class Cleanup {
 
       await this.pruneWorktrees();
     } catch (error) {
-      this.warn(`Failed to clean worktrees: ${error instanceof Error ? error.message : String(error)}`);
+      this.warn(
+        `Failed to clean worktrees: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   private async killAllAgentTmuxWindows(): Promise<void> {
     try {
       const windowsToKill = await this.listTmuxWindowsToKill();
-      
+
       if (windowsToKill.length === 0) {
-        this.info('No agent tmux windows found to kill');
+        this.info("No agent tmux windows found to kill");
         return;
       }
 
-      console.log('\n🖥️  The following tmux windows will be killed:');
+      console.log("\n🖥️  The following tmux windows will be killed:");
       for (const window of windowsToKill) {
         console.log(`  - ${window.session}:${window.window}`);
       }
 
-      const confirmed = await this.promptForConfirmation('\nKill these tmux windows?');
+      const confirmed = await this.promptForConfirmation(
+        "\nKill these tmux windows?",
+      );
       if (!confirmed) {
-        this.info('Skipping tmux window cleanup');
+        this.info("Skipping tmux window cleanup");
         return;
       }
 
-      this.log('Killing agent tmux windows...');
-      
+      this.log("Killing agent tmux windows...");
+
       for (const window of windowsToKill) {
         await this.killTmuxWindow(window.window);
       }
     } catch (error) {
-      this.warn(`Failed to kill tmux windows: ${error instanceof Error ? error.message : String(error)}`);
+      this.warn(
+        `Failed to kill tmux windows: ${error instanceof Error ? error.message : String(error)}`,
+      );
     }
   }
 
   async reset(options: CleanupOptions = {}): Promise<void> {
     try {
-      this.log('🧹 Starting full reset and cleanup...');
+      this.log("🧹 Starting full reset and cleanup...");
 
       await this.removeMulticlaudeDirectory();
       await this.removeStagedFiles();
       await this.cleanAllWorktrees();
       await this.killAllAgentTmuxWindows();
 
-      this.log('✅ Reset completed successfully!');
-      
+      this.log("✅ Reset completed successfully!");
+
       await this.showRemainingResources();
     } catch (error) {
-      this.error(`Reset failed: ${error instanceof Error ? error.message : String(error)}`);
+      this.error(
+        `Reset failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exit(1);
     }
   }
 
-  async cleanup(branchName: string, options: CleanupOptions = {}): Promise<void> {
+  async cleanup(
+    branchName: string,
+    options: CleanupOptions = {},
+  ): Promise<void> {
     try {
       this.log(`Cleaning up worker: ${branchName} (branch: ${branchName})`);
 
@@ -517,11 +597,13 @@ export class Cleanup {
       await this.deleteBranch(branchName);
       await this.pruneWorktrees();
 
-      this.log('✅ Cleanup completed successfully!');
+      this.log("✅ Cleanup completed successfully!");
 
       await this.showRemainingResources();
     } catch (error) {
-      this.error(`Cleanup failed: ${error instanceof Error ? error.message : String(error)}`);
+      this.error(
+        `Cleanup failed: ${error instanceof Error ? error.message : String(error)}`,
+      );
       process.exit(1);
     }
   }

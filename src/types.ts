@@ -22,6 +22,8 @@ export interface LaunchOptions {
   customInstructions?: string;
   allowedTools?: string[];
   disallowedTools?: string[];
+  allowExisting?: boolean;
+  thoughts?: boolean;
 }
 
 export interface CleanupOptions {
