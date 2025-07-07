@@ -42,6 +42,7 @@ program
     "Use existing worktree and branch if they already exist",
   )
   .option("--thoughts", "Initialize HumanLayer thoughts in the worktree")
+  .option("--model <model>", "AI model to use (default: opus)", "opus")
   .action(
     async (
       branch: string,
@@ -52,6 +53,7 @@ program
         humanlayer?: boolean;
         allowExisting?: boolean;
         thoughts?: boolean;
+        model?: string;
       },
     ) => {
       const launcher = new Launcher();

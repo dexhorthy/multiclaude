@@ -42,9 +42,7 @@ Each call adds a new window to the `${MULTICLAUDE_TMUX_SESSION}` or `${REPO_NAME
 
 **Wait for a bit**: `sleep 120`
 **Check progress**: `git log --oneline -3 [branch]` every 2 minutes
-**Agent stuck?**: after 10 minutes with no changes - `tmux capture-pane -t session:window -p | tail -10`
-**Agent waiting for approval?**: `tmux send-keys -t session:window C-m`
-**Agent done but no commit?**: `tmux send-keys -t session:window "Please commit your completed work" C-m`
+**Check uncommitted changes**: `git diff --name-only [current-branch]..[agent-branch]` to see files the agent is working on but hasn't committed yet
 
 ## PREVENT CONFLICTS
 
@@ -120,9 +118,6 @@ tmux kill-session -t ${MULTICLAUDE_TMUX_SESSION}
 
 ### Debugging Agent Issues
 ```bash
-# View agent's terminal output
-tmux capture-pane -t ${MULTICLAUDE_TMUX_SESSION}:3.2 -p | less
-
 # Check worktree status
 git worktree list | grep ${REPO_NAME}_
 

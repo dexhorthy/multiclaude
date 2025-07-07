@@ -333,8 +333,9 @@ export class Launcher {
     }
   }
 
-  private async launchClaude(info: WorktreeInfo): Promise<void> {
+  private async launchClaude(info: WorktreeInfo, options: LaunchOptions = {}): Promise<void> {
     const target = `${this.config.tmuxSession}:${info.tmuxWindow}`;
+    const model = options.model || "opus";
 
     this.log("Setting up project environment");
     // Environment setup can be customized via Makefile setup target
@@ -344,7 +345,7 @@ export class Launcher {
       "send-keys",
       "-t",
       target,
-      `claude "Please execute ${info.planFileName}"`,
+      `claude --model ${model} "Please execute ${info.planFileName}"`,
       "C-m",
     ]);
 
@@ -365,12 +366,16 @@ export class Launcher {
     options: LaunchOptions = {},
   ): Promise<void> {
     this.log(`Starting HumanLayer in worktree: ${info.worktreeDir}`);
+    const model = options.model || "opus";
 
     // Build simple arguments with only working directory
     const args = ["humanlayer", "launch"];
 
     // Working directory (supported: -w, --working-dir)
     args.push("--working-dir", info.worktreeDir);
+
+    // Add model flag
+    args.push("--model", model);
 
     // Add the query/prompt
     args.push(`Please execute ${info.planFileName}`);
@@ -439,7 +444,7 @@ export class Launcher {
         console.log(`  npx multiclaude cleanup ${branchName}`);
       } else {
         await this.createTmuxWindow(info);
-        await this.launchClaude(info);
+        await this.launchClaude(info, options);
         this.log("✅ Worker launched successfully!");
         console.log();
         console.log(`Session: ${this.config.tmuxSession}`);

@@ -4,38 +4,63 @@ You will be given a list of branches to merge. Your coworkers are actively worki
 
 ## 🔄 THE WORKFLOW THAT ACTUALLY WORKS - DONT DEVIATE
 
-### Step 1. Review the list of branches to merge
+### Step 1. Track merged commits
+Keep a list of all commits you've successfully merged to avoid duplicates.
 
-### Step 2. List files that have changed in the branches to merge
+### Step 2. Continuously monitor branches
+Check each branch for new commits every 30-60 seconds. **AS SOON AS you find a new commit on ANY branch, merge it immediately.** Don't wait for all agents to commit - merge incrementally as commits appear.
 
-```
-
-```
-
-### Step 3: READ ALL FILES THAT HAVE CHANGED IN THE DIFF
-
+### Step 3. Perform git merge immediately when commits are found
 
 ```bash
-# use git show to see the changes in a file from the other branch
-git show BRANCH:file.ext
+# ALWAYS use git merge - NEVER use git show or manual file edits
+git merge --no-ff BRANCH_NAME
 ```
 
-### Step 4: READ ALL CURRENT VERSION OF THE FILES
-**MINIMUM 1500 LINES - This gives you COMPLETE understanding**
-- 158 line file? Read ALL 158 - you now understand everything
-- 3000 line file? Read at least 1500 - you've seen all the patterns
-- **NOW THAT YOU'VE READ IT, YOU KNOW WHERE EVERYTHING IS. Don't doubt yourself.**
+### Step 4: Handle merge conflicts if they occur
 
-### Step 5: UPDATE YOUR TASK LIST
+If you encounter merge conflicts:
 
-Determine one or more files to merge in a single go
+1. **STOP and launch a Task() sub-agent** with:
+   - A summary of ALL branches being monitored and their purposes
+   - The specific merge conflict details
+   - A list of ALL commits merged so far in this session
+   - The current state of the conflicted files
+   
+2. **The Task prompt should be**:
+```
+I'm merging multiple feature branches and encountered a conflict.
 
-### Step 6: perform the merge
+Monitored branches and their purposes:
+- branch1: [purpose/summary]
+- branch2: [purpose/summary]
+- branch3: [purpose/summary]
 
-use the Write tool to update the files in the current branch to incorporate the changes from the other branch
+Commits already merged in this session:
+- [commit hash] [commit message]
+- [commit hash] [commit message]
 
+Current merge conflict:
+[paste the conflict details from git status]
 
-### Step 7: BUILD IMMEDIATELY - CATCH ERRORS EARLY
+Please analyze the conflict and provide a detailed report on:
+1. What each side of the conflict is trying to achieve
+2. The recommended resolution strategy
+3. Step-by-step instructions for resolving the conflict
+4. Any potential issues to watch for after resolution
+```
+
+3. **Execute the resolution** based on the sub-agent's report
+
+### Step 5: Verify the merge
+
+After resolving conflicts (if any):
+```bash
+git add -A
+git commit
+```
+
+### Step 6: BUILD IMMEDIATELY - CATCH ERRORS EARLY
 
 ```bash
 make check
@@ -49,34 +74,25 @@ make test
 # Tests Failed? Good, now you know what to fix
 ```
 
-### Step 8: CHECK YOUR WORK
+### Step 7: CHECK YOUR WORK
 ```bash
-tree -L 5 -I "node_modules|.git|dist|build" ./
-# See any duplicate files? That's what happens when you don't read first
-# You're better than that - you read everything first
+git log --oneline -5
+# Verify the merge commits are present
 ```
 
-### Step 9: Deploy and verify your application (if applicable)
+### Step 8: Continue monitoring loop
 
-[optional - update with background process, docker commands, etc]
+Go back to Step 2 and keep monitoring all branches continuously. Remember:
+- Merge commits AS SOON AS they appear on any branch
+- Don't batch or wait - incremental merging reduces conflicts
+- Keep your merged commits list updated
+- Monitor all branches in a continuous loop
 
-### Step 10: check what's there
+### Step 9: Final verification
 
-[optional - check the logs, curl the web page, etc]
-
-### Step 11: Create or update resources (if needed)
-
-- Create or update configuration files as needed.
-- Apply them using your project's standard process.
-
-### Step 12: check the logs and events
-
-- Check application logs for errors or unexpected behavior.
-- Review recent events relevant to your changes.
-
-### Step 13: clean up any temporary resources
-
-- Remove any temporary or test resources you created during the process.
+- Run full test suite one more time
+- Check that all expected features from merged branches are working
+- Commit any final adjustments needed
 
 ## 🗑️ THE 10% DELETION REQUIREMENT - FIND THE REDUNDANCY
 
